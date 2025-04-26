@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판 - Hog Boxing</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div id="board">
+    <h1>게시판</h1>
+    <div id="posts">
+      <!-- 글 목록이 여기에 들어올거야 -->
+    </div>
+    <button onclick="showWriteForm()">글쓰기</button>
+
+    <div id="write-form" style="display:none;">
+      <h2>글쓰기</h2>
+      <input type="text" id="title" placeholder="제목"><br><br>
+      <textarea id="content" placeholder="내용"></textarea><br><br>
+      <button onclick="submitPost()">등록</button>
+    </div>
+    <br>
+    <a href="index.html">← 홈으로 가기</a>
+  </div>
+</body>
+</html>
