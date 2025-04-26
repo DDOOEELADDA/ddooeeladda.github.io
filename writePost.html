@@ -1,1 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>글쓰기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>글쓰기</h1> <!-- 글쓰기 페이지 제목 -->
+    </header>
 
+    <main>
+      <section class="write-post">
+        <input type="text" id="writer" placeholder="작성자" />
+        <input type="text" id="title" placeholder="제목" />
+        <textarea id="content" placeholder="내용"></textarea>
+        <button onclick="submitPost()">작성 완료</button>
+      </section>
+    </main>
+
+    <footer>
+      <button onclick="goToHome()">홈으로 돌아가기</button>
+      <p>&copy; 2025 ddooeeladda</p>
+    </footer>
+  </div>
+
+  <!-- Firebase 연결 및 글 저장 스크립트 -->
+  <script type="module">
+    // Firebase SDK 불러오기
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+      authDomain: "hogboxing-35911.firebaseapp.com",
+      projectId: "hogboxing-35911",
+      storageBucket: "hogboxing-35911.firebasestorage.app",
+      messagingSenderId: "911173936135",
+      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
+      measurementId: "G-FJPPNS2QQN"
+    };
+
+    // Firebase 앱 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 글쓰기 함수
+    async function submitPost() {
+      const writer = document.getElementById('writer').value;
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+
+      if (writer && title && content) {
+        await addDoc(collection(db, "posts"), {
+          writer: writer,
+          title: title,
+          content: content,
+          comments: 0, // 기본 댓글 수
+          createdAt: new Date() // 작성 시간
+        });
+        alert("글 작성 완료!");
+        window.location.href = "board.html"; // 작성 완료 후 게시판으로 이동
+      } else {
+        alert("모든 칸을 채워주세요!");
+      }
+    }
+
+    // 홈으로 돌아가기 버튼
+    function goToHome() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
