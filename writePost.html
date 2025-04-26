@@ -27,10 +27,11 @@
     </footer>
   </div>
 
-  <!-- Firebase 연결용 라이브러리 가져오기 (import 안 씀!) -->
+  <!-- Firebase SDK (브라우저용) 가져오기 -->
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
 
+  <!-- 내 코드 -->
   <script>
     // Firebase 설정
     const firebaseConfig = {
@@ -67,7 +68,7 @@
       })
       .then(() => {
         alert("글 작성 완료!");
-        window.location.href = "board.html"; // 게시판으로 이동
+        window.location.href = "board.html";
       })
       .catch((error) => {
         console.error("글 작성 실패", error);
