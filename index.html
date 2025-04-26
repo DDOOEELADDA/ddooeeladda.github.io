@@ -3,36 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>호그주먹전 게시판</title>
+  <title>호그주먹전</title> <!-- 홈은 '호그주먹전'만 제목 -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>호그주먹전 게시판</h1>
+      <h1>호그주먹전</h1>
       <nav>
         <button onclick="goToHome()">홈</button>
-        <button onclick="goToWrite()">글쓰기</button>
+        <button onclick="goToBoard()">게시판</button> <!-- 게시판 버튼 추가 -->
         <button onclick="goToLogin()">로그인</button>
       </nav>
     </header>
 
     <main>
-      <section class="board">
-        <table>
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>제목</th>
-              <th>작성자</th>
-              <th>날짜</th>
-              <th>조회</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- 여기에 게시글 목록이 들어감 -->
-          </tbody>
-        </table>
+      <section class="home">
+        <h2>환영합니다!</h2>
+        <p>호그주먹전 홈페이지에 오신 것을 환영합니다.</p>
       </section>
     </main>
 
@@ -45,8 +33,8 @@
     function goToHome() {
       window.location.href = "index.html";
     }
-    function goToWrite() {
-      alert("로그인 후 글쓰기가 가능합니다.");
+    function goToBoard() {
+      window.location.href = "board.html"; // 게시판 페이지로 이동
     }
     function goToLogin() {
       alert("구글 로그인은 나중에 붙일게요!");
