@@ -1,27 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게시판 - Hog Boxing</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>호그주먹전 게시판</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="board">
-    <h1>게시판</h1>
-    <div id="posts">
-      <!-- 글 목록이 여기에 들어올거야 -->
-    </div>
-    <button onclick="showWriteForm()">글쓰기</button>
+  <div class="container">
+    <header>
+      <h1>게시판</h1> <!-- 게시판 제목 -->
+    </header>
 
-    <div id="write-form" style="display:none;">
-      <h2>글쓰기</h2>
-      <input type="text" id="title" placeholder="제목"><br><br>
-      <textarea id="content" placeholder="내용"></textarea><br><br>
-      <button onclick="submitPost()">등록</button>
-    </div>
-    <br>
-    <a href="index.html">← 홈으로 가기</a>
+    <main>
+      <section class="board">
+        <table>
+          <thead>
+            <tr>
+              <th>작성자</th>
+              <th>제목</th>
+              <th>댓글 수</th>
+            </tr>
+          </thead>
+          <tbody id="post-list">
+            <!-- 여기에 게시글 목록이 동적으로 들어감 -->
+          </tbody>
+        </table>
+        <button onclick="goToWrite()">글쓰기</button> <!-- 글쓰기 버튼 -->
+      </section>
+    </main>
+
+    <footer>
+      <button onclick="goToHome()">홈으로 돌아가기</button> <!-- 홈으로 돌아가기 버튼 -->
+      <p>&copy; 2025 ddooeeladda</p>
+    </footer>
   </div>
+
+  <script>
+    function goToHome() {
+      window.location.href = "index.html"; // 홈으로 이동
+    }
+
+    function goToWrite() {
+      window.location.href = "writePost.html"; // 글쓰기 페이지로 이동
+    }
+
+    const posts = [
+      { id: 1, writer: "ddooeeladda", title: "첫 번째 게시글", comments: 3 },
+      { id: 2, writer: "user123", title: "두 번째 게시글", comments: 1 },
+      { id: 3, writer: "admin", title: "세 번째 게시글", comments: 0 }
+    ];
+
+    function loadPosts() {
+      const postListElement = document.getElementById('post-list');
+      postListElement.innerHTML = ''; // 기존 내용 제거
+
+      posts.forEach(post => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${post.writer}</td>
+          <td><a href="viewPost.html?post=${post.id}">${post.title}</a></td>
+          <td>${post.comments}</td>
+        `;
+        postListElement.appendChild(row);
+      });
+    }
+
+    window.onload = loadPosts; // 페이지 로드 시 게시글 목록 로드
+  </script>
 </body>
 </html>
