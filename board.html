@@ -37,36 +37,39 @@
   </div>
 
   <script>
-    function goToHome() {
-      window.location.href = "index.html"; // 홈으로 이동
-    }
+  function goToHome() {
+    window.location.href = "index.html"; // 홈으로 이동
+  }
 
-    function goToWrite() {
-      window.location.href = "writePost.html"; // 글쓰기 페이지로 이동
-    }
+  function goToWrite() {
+    window.location.href = "writePost.html"; // 글쓰기 페이지로 이동
+  }
 
-    const posts = [
-      { id: 1, writer: "ddooeeladda", title: "첫 번째 게시글", comments: 3 },
-      { id: 2, writer: "user123", title: "두 번째 게시글", comments: 1 },
-      { id: 3, writer: "admin", title: "세 번째 게시글", comments: 0 }
-    ];
+  const posts = [
+    { id: 1, writer: "ddooeeladda", title: "첫 번째 게시글", comments: 3 },
+    { id: 2, writer: "user123", title: "두 번째 게시글", comments: 1 },
+    { id: 3, writer: "admin", title: "세 번째 게시글", comments: 0 }
+  ];
 
-    function loadPosts() {
-      const postListElement = document.getElementById('post-list');
-      postListElement.innerHTML = ''; // 기존 내용 제거
+  function loadPosts() {
+    const postListElement = document.getElementById('post-list');
+    postListElement.innerHTML = ''; // 기존 내용 제거
 
-      posts.forEach(post => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${post.writer}</td>
-          <td><a href="viewPost.html?post=${post.id}">${post.title}</a></td>
-          <td>${post.comments}</td>
-        `;
-        postListElement.appendChild(row);
-      });
-    }
+    // 게시글 목록을 최신순으로 정렬
+    posts.reverse().forEach(post => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${post.writer}</td>
+        <td><a href="viewPost.html?post=${post.id}">${post.title}</a></td>
+        <td>${post.comments}</td>
+      `;
+      postListElement.appendChild(row);
+    });
+  }
 
-    window.onload = loadPosts; // 페이지 로드 시 게시글 목록 로드
+  window.onload = loadPosts; // 페이지 로드 시 게시글 목록 로드
+</script>
+
   </script>
 </body>
 </html>
