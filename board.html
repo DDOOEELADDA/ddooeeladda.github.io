@@ -31,93 +31,64 @@
     </main>
 
     <footer>
-      <button onclick="goToHome()">홈으로 돌아가기</button> <!-- 홈으로 돌아가기 버튼 -->
+      <button onclick="goToHome()">홈으로 돌아가기</button>
       <p>&copy; 2025 ddooeeladda</p>
     </footer>
   </div>
-  <script>
-  function goToHome() {
-    window.location.href = "index.html"; // 홈으로 이동
-  }
 
-  function goToWrite() {
-    window.location.href = "writePost.html"; // 글쓰기 페이지로 이동
-  }
+  <!-- Firebase 연동 및 게시글 가져오기 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  const posts = [
-    { id: 1, writer: "ddooeeladda", title: "첫 번째 게시글", comments: 3 },
-    { id: 2, writer: "user123", title: "두 번째 게시글", comments: 1 },
-    { id: 3, writer: "admin", title: "세 번째 게시글", comments: 0 }
-  ];
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+      authDomain: "hogboxing-35911.firebaseapp.com",
+      projectId: "hogboxing-35911",
+      storageBucket: "hogboxing-35911.appspot.com",
+      messagingSenderId: "911173936135",
+      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
+      measurementId: "G-FJPPNS2QQN"
+    };
 
-  function loadPosts() {
-    const postListElement = document.getElementById('post-list');
-    postListElement.innerHTML = ''; // 기존 내용 제거
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // 게시글 목록을 최신순으로 정렬
-    posts.reverse().forEach(post => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${post.writer}</td>
-        <td><a href="viewPost.html?post=${post.id}">${post.title}</a></td>
-        <td>${post.comments}</td>
-      `;
-      postListElement.appendChild(row);
-    });
-  }
+    // 글 목록 불러오기
+    async function loadPosts() {
+      const postListElement = document.getElementById('post-list');
+      postListElement.innerHTML = ''; // 테이블 비우기
 
-  window.onload = loadPosts; // 페이지 로드 시 게시글 목록 로드
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      // posts 컬렉션에서 글 가져오기 (최신순)
+      const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(postsQuery);
 
-  // Firebase 설정
-  const firebaseConfig = {
-    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-    authDomain: "hogboxing-35911.firebaseapp.com",
-    projectId: "hogboxing-35911",
-    storageBucket: "hogboxing-35911.firebasestorage.app",
-    messagingSenderId: "911173936135",
-    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-    measurementId: "G-FJPPNS2QQN"
-  };
+      querySnapshot.forEach((doc) => {
+        const post = doc.data();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${post.writer}</td>
+          <td>${post.title}</td>
+          <td>${post.comments ?? 0}</td>
+        `;
+        postListElement.appendChild(row);
+      });
+    }
 
-  // Firebase 초기화
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    // 페이지 로드 시 실행
+    window.onload = loadPosts;
 
-  // 게시글 불러오기
-  async function loadPosts() {
-    const postListElement = document.getElementById('post-list');
-    postListElement.innerHTML = ''; // 테이블 비우기
+    // 홈으로 이동
+    window.goToHome = function() {
+      window.location.href = "index.html";
+    }
 
-    // 'posts' 컬렉션 가져오기 + createdAt 최신순 정렬
-    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(postsQuery);
-
-    querySnapshot.forEach((doc) => {
-      const post = doc.data();
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${post.writer}</td>
-        <td>${post.title}</td>
-        <td>${post.comments ?? 0}</td>
-      `;
-      postListElement.appendChild(row);
-    });
-  }
-
-  // 홈으로, 글쓰기로 이동하는 함수
-  window.goToHome = function() {
-    window.location.href = "index.html";
-  }
-  window.goToWrite = function() {
-    window.location.href = "writePost.html";
-  }
-
-  // 페이지 로드되면 실행
-  window.onload = loadPosts;
-</script>
-
+    // 글쓰기 페이지로 이동
+    window.goToWrite = function() {
+      window.location.href = "writePost.html";
+    }
+  </script>
 </body>
 </html>
