@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>게시판</h1> <!-- 게시판 제목 -->
+      <h1>게시판</h1>
     </header>
 
     <main>
@@ -23,10 +23,10 @@
             </tr>
           </thead>
           <tbody id="post-list">
-            <!-- 여기에 게시글 목록이 동적으로 들어감 -->
+            <!-- 게시글 목록 들어감 -->
           </tbody>
         </table>
-        <button onclick="goToWrite()">글쓰기</button> <!-- 글쓰기 버튼 -->
+        <button onclick="goToWrite()">글쓰기</button>
       </section>
     </main>
 
@@ -36,12 +36,20 @@
     </footer>
   </div>
 
-  <!-- Firebase 연동 및 게시글 가져오기 -->
+  <script>
+    function goToHome() {
+      window.location.href = "index.html";
+    }
+
+    function goToWrite() {
+      window.location.href = "writePost.html";
+    }
+  </script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
       authDomain: "hogboxing-35911.firebaseapp.com",
@@ -52,43 +60,35 @@
       measurementId: "G-FJPPNS2QQN"
     };
 
-    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 글 목록 불러오기
     async function loadPosts() {
       const postListElement = document.getElementById('post-list');
-      postListElement.innerHTML = ''; // 테이블 비우기
+      postListElement.innerHTML = '';
 
-      // posts 컬렉션에서 글 가져오기 (최신순)
-      const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(postsQuery);
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      const posts = [];
 
       querySnapshot.forEach((doc) => {
-        const post = doc.data();
+        posts.push({ id: doc.id, ...doc.data() });
+      });
+
+      // 최신 글이 위로 오게 정렬
+      posts.reverse();
+
+      posts.forEach(post => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${post.writer}</td>
-          <td>${post.title}</td>
+          <td><a href="viewPost.html?id=${post.id}">${post.title}</a></td>
           <td>${post.comments ?? 0}</td>
         `;
         postListElement.appendChild(row);
       });
     }
 
-    // 페이지 로드 시 실행
-    window.onload = loadPosts;
-
-    // 홈으로 이동
-    window.goToHome = function() {
-      window.location.href = "index.html";
-    }
-
-    // 글쓰기 페이지로 이동
-    window.goToWrite = function() {
-      window.location.href = "writePost.html";
-    }
+    window.addEventListener('DOMContentLoaded', loadPosts);
   </script>
 </body>
 </html>
