@@ -35,7 +35,6 @@
       <p>&copy; 2025 ddooeeladda</p>
     </footer>
   </div>
-
   <script>
   function goToHome() {
     window.location.href = "index.html"; // 홈으로 이동
@@ -68,16 +67,11 @@
   }
 
   window.onload = loadPosts; // 페이지 로드 시 게시글 목록 로드
-</script>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  // Firebase 설정
   const firebaseConfig = {
     apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
     authDomain: "hogboxing-35911.firebaseapp.com",
@@ -88,9 +82,42 @@
     measurementId: "G-FJPPNS2QQN"
   };
 
-  // Initialize Firebase
+  // Firebase 초기화
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // 게시글 불러오기
+  async function loadPosts() {
+    const postListElement = document.getElementById('post-list');
+    postListElement.innerHTML = ''; // 테이블 비우기
+
+    // 'posts' 컬렉션 가져오기 + createdAt 최신순 정렬
+    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(postsQuery);
+
+    querySnapshot.forEach((doc) => {
+      const post = doc.data();
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${post.writer}</td>
+        <td>${post.title}</td>
+        <td>${post.comments ?? 0}</td>
+      `;
+      postListElement.appendChild(row);
+    });
+  }
+
+  // 홈으로, 글쓰기로 이동하는 함수
+  window.goToHome = function() {
+    window.location.href = "index.html";
+  }
+  window.goToWrite = function() {
+    window.location.href = "writePost.html";
+  }
+
+  // 페이지 로드되면 실행
+  window.onload = loadPosts;
 </script>
+
 </body>
 </html>
