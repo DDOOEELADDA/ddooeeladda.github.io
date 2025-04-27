@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>게시글 보기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>게시글 내용</h1>
+    </header>
+
+    <main>
+      <section id="post-content">
+        <h2 id="post-title">로딩 중...</h2>
+        <p id="post-writer"></p>
+        <p id="post-body"></p>
+      </section>
+    </main>
+
+    <footer>
+      <button onclick="goToBoard()">게시판으로 돌아가기</button>
+      <p>&copy; 2025 ddooeeladda</p>
+    </footer>
+  </div>
+
+  <script>
+    function goToBoard() {
+      window.location.href = "board.html";
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+      authDomain: "hogboxing-35911.firebaseapp.com",
+      projectId: "hogboxing-35911",
+      storageBucket: "hogboxing-35911.appspot.com",
+      messagingSenderId: "911173936135",
+      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
+      measurementId: "G-FJPPNS2QQN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadPost() {
+      // URL에서 id 가져오기
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+
+      if (!id) {
+        alert('잘못된 접근입니다.');
+        window.location.href = "board.html";
+        return;
+      }
+
+      const postRef = doc(db, "posts", id);
+      const postSnap = await getDoc(postRef);
+
+      if (postSnap.exists()) {
+        const post = postSnap.data();
+        document.getElementById('post-title').textContent = post.title;
+        document.getElementById('post-writer').textContent = "작성자: " + post.writer;
+        document.getElementById('post-body').textContent = post.content;
+      } else {
+        alert('게시글을 찾을 수 없습니다.');
+        window.location.href = "board.html";
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadPost);
+  </script>
+</body>
+</html>
