@@ -13,7 +13,7 @@
       <nav>
         <button onclick="goToHome()">홈</button>
         <button onclick="goToBoard()">게시판</button> <!-- 게시판 버튼 추가 -->
-        <button onclick="goToLogin()">로그인</button>
+        <button onclick="goToLogin()">로그인</button> <!-- 로그인 버튼 클릭 시 로그인 페이지로 이동 -->
       </nav>
     </header>
 
@@ -33,13 +33,16 @@
     function goToHome() {
       window.location.href = "index.html";
     }
+
     function goToBoard() {
       window.location.href = "board.html"; // 게시판 페이지로 이동
     }
+
     function goToLogin() {
-      alert("구글 로그인은 나중에 붙일게요!");
+      window.location.href = "login.html";  <!-- 로그인 페이지로 이동하는 기능 추가 -->
     }
   </script>
+
   <script type="module">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
