@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>로그인</h1>
+
+    <input type="email" id="email" placeholder="이메일 입력" required>
+    <input type="password" id="password" placeholder="비밀번호 입력" required>
+
+    <button onclick="login()">로그인</button>
+    <button onclick="signUp()">회원가입</button>
+
+    <p id="message"></p>
+
+    <button onclick="goHome()">홈으로 가기</button>
+  </div>
+
+  <script type="module">
+    // Firebase SDK 불러오기
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "너의-API-KEY",
+      authDomain: "너의-authDomain",
+      projectId: "너의-projectId",
+      storageBucket: "너의-storageBucket",
+      messagingSenderId: "너의-messagingSenderId",
+      appId: "너의-appId",
+      measurementId: "너의-measurementId"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 로그인 함수
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        document.getElementById('message').textContent = "로그인 성공!";
+        // 로그인 성공하면 원하는 곳으로 이동
+        window.location.href = "board.html";
+      } catch (error) {
+        document.getElementById('message').textContent = "로그인 실패: " + error.message;
+      }
+    }
+
+    // 회원가입 함수
+    async function signUp() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        document.getElementById('message').textContent = "회원가입 성공! 이제 로그인해보세요.";
+      } catch (error) {
+        document.getElementById('message').textContent = "회원가입 실패: " + error.message;
+      }
+    }
+
+    // 홈으로 가기
+    function goHome() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
