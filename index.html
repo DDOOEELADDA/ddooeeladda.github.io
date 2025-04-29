@@ -3,8 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>호그주먹전</title> <!-- 홈은 '호그주먹전'만 제목 -->
+  <title>호그주먹전</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .user-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 45px;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      border-radius: 5px;
+    }
+
+    .user-dropdown button {
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .user-dropdown button:hover {
+      background-color: #f0f0f0;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    nav .right {
+      margin-left: auto;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -12,8 +67,11 @@
       <h1>호그주먹전</h1>
       <nav>
         <button onclick="goToHome()">홈</button>
-        <button onclick="goToBoard()">게시판</button> <!-- 게시판 버튼 추가 -->
-        <button onclick="goToLogin()">로그인</button> <!-- 로그인 버튼 클릭 시 로그인 페이지로 이동 -->
+        <button onclick="goToBoard()">게시판</button>
+        <div class="right" id="nav-right">
+          <!-- 로그인 버튼 또는 아이콘이 여기에 들어감 -->
+          <button onclick="goToLogin()" id="login-btn">로그인</button>
+        </div>
       </nav>
     </header>
 
@@ -35,36 +93,76 @@
     }
 
     function goToBoard() {
-      window.location.href = "board.html"; // 게시판 페이지로 이동
+      window.location.href = "board.html";
     }
 
     function goToLogin() {
-      window.location.href = "login.html";  <!-- 로그인 페이지로 이동하는 기능 추가 -->
+      if (window.currentUser) {
+        alert("이미 계정에 로그인하였습니다!");
+        return;
+      }
+      window.location.href = "login.html";
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById("user-dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function logout() {
+      import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js").then(({ getAuth, signOut }) => {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+          alert("로그아웃 되었습니다.");
+          location.reload();
+        });
+      });
     }
   </script>
 
   <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-    authDomain: "hogboxing-35911.firebaseapp.com",
-    projectId: "hogboxing-35911",
-    storageBucket: "hogboxing-35911.firebasestorage.app",
-    messagingSenderId: "911173936135",
-    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-    measurementId: "G-FJPPNS2QQN"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+      authDomain: "hogboxing-35911.firebaseapp.com",
+      projectId: "hogboxing-35911",
+      storageBucket: "hogboxing-35911.firebasestorage.app",
+      messagingSenderId: "911173936135",
+      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
+      measurementId: "G-FJPPNS2QQN"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const navRight = document.getElementById("nav-right");
+
+    onAuthStateChanged(auth, (user) => {
+      window.currentUser = user;
+
+      if (user) {
+        const displayName = user.displayName || user.email || "사용자";
+        const firstChar = displayName[0].toUpperCase();
+
+        let iconContent = "";
+        if (user.photoURL) {
+          iconContent = `<img src="${user.photoURL}" alt="User" style="width: 100%; height: 100%; border-radius: 50%;" />`;
+        } else {
+          iconContent = `<span>${firstChar}</span>`;
+        }
+
+        navRight.innerHTML = `
+          <div class="user-menu">
+            <div class="user-icon" onclick="toggleDropdown()">${iconContent}</div>
+            <div class="user-dropdown" id="user-dropdown">
+              <button onclick="logout()">로그아웃</button>
+            </div>
+          </div>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
