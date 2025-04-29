@@ -52,7 +52,13 @@
       box-sizing: border-box;
     }
 
-    .login-form button {
+    .login-form .button-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .login-form .button-container button {
+      width: 48%;
       padding: 12px;
       background-color: #007bff;
       color: white;
@@ -63,18 +69,8 @@
       transition: background-color 0.3s;
     }
 
-    .login-form button:hover {
+    .login-form .button-container button:hover {
       background-color: #0056b3;
-    }
-
-    /* 버튼을 가로로 배치 */
-    .login-form .button-container {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .login-form .button-container button {
-      width: 48%; /* 버튼을 반반 나눔 */
     }
 
     footer {
@@ -114,17 +110,16 @@
             <input type="password" id="password" required placeholder="비밀번호를 입력하세요" />
           </div>
 
-          <!-- 로그인, 회원가입 버튼을 가로로 배치 -->
           <div class="button-container">
             <button type="submit">로그인</button>
-            <button type="button" onclick="goToSignup()">회원가입</button> <!-- 회원가입 버튼 추가 -->
+            <button type="button" onclick="goToSignup()">회원가입</button>
           </div>
         </form>
       </section>
     </main>
 
     <footer>
-      <button onclick="goHome()">홈으로 가기</button> <!-- 홈으로 가는 버튼 -->
+      <button onclick="goHome()">홈으로 가기</button>
       <p>&copy; 2025 ddooeeladda</p>
     </footer>
   </div>
@@ -133,7 +128,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
       authDomain: "hogboxing-35911.firebaseapp.com",
@@ -144,38 +138,35 @@
       measurementId: "G-FJPPNS2QQN"
     };
 
-    // Firebase 앱 초기화
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 로그인 처리
     const loginForm = document.getElementById('login-form');
     loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+      e.preventDefault();
 
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         alert("로그인 성공!");
-        window.location.href = "board.html"; // 로그인 후 게시판 페이지로 이동
+        window.location.href = "board.html";
       } catch (error) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        alert(`오류: ${errorMessage}`); // 오류 메시지 출력
+        // 보안을 위해 에러 메시지 숨기기
+        alert("이메일 또는 비밀번호가 유효하지 않습니다.");
+        console.error("로그인 실패:", error); // 콘솔에는 남겨둠 (개발자 참고용)
       }
     });
 
-    // 홈으로 이동하는 함수 정의
-    function goHome() {
-      window.location.href = "index.html"; // 홈으로 이동
-    }
+    // 전역에서 쓸 수 있도록 함수 등록
+    window.goHome = function () {
+      window.location.href = "index.html";
+    };
 
-    // 회원가입 페이지로 이동하는 함수
-    function goToSignup() {
-      window.location.href = "signup.html"; // 회원가입 페이지로 이동
-    }
+    window.goToSignup = function () {
+      window.location.href = "signup.html";
+    };
   </script>
 </body>
 </html>
