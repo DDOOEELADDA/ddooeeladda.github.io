@@ -68,6 +68,7 @@
       <nav>
         <button onclick="goToHome()">홈</button>
         <button onclick="goToBoard()">게시판</button>
+        <button onclick="goToRanking()">랭킹</button> <!-- ✅ 이 줄 추가 -->
         <div class="right" id="nav-right">
           <!-- 로그인 버튼 또는 아이콘이 여기에 들어감 -->
           <button onclick="goToLogin()" id="login-btn">로그인</button>
@@ -95,7 +96,10 @@
     function goToBoard() {
       window.location.href = "board.html";
     }
-
+    function goToRanking() {
+    window.location.href = "ranking.html";
+    }
+    
     function goToLogin() {
       if (window.currentUser) {
         alert("이미 계정에 로그인하였습니다!");
