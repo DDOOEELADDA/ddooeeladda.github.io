@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>호그주먹전 랭킹</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .ranking-container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .ranking-title {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .rank-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 20px;
+      margin-bottom: 10px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+
+    .rank-number {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .rank-name {
+      color: #666;
+    }
+
+    .back-button {
+      margin-top: 20px;
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="ranking-container">
+    <div class="ranking-title">랭킹</div>
+
+    <div class="rank-item"><span class="rank-number">1위</span> <span class="rank-name">미정</span></div>
+    <div class="rank-item"><span class="rank-number">2위</span> <span class="rank-name">미정</span></div>
+    <div class="rank-item"><span class="rank-number">3위</span> <span class="rank-name">미정</span></div>
+    <div class="rank-item"><span class="rank-number">4위</span> <span class="rank-name">미정</span></div>
+    <div class="rank-item"><span class="rank-number">5위</span> <span class="rank-name">미정</span></div>
+
+    <button class="back-button" onclick="goHome()">홈으로 가기</button>
+  </div>
+
+  <script>
+    function goHome() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
