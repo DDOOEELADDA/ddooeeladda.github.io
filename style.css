@@ -65,8 +65,10 @@
   text-align: center;
 }
 
+/* 기존 .hero-content { margin-top: -40px; } 를 아래로 교체 */
 .hero-content {
-  margin-top: -40px; /* 딱 자연스럽게 조금 위로 */
+  margin-top: 0;
+  padding: 0 20px; /* 좌우 여백으로 모바일에서 꽉 차지 않게 함 */
 }
 
 .hero-content h2 {
@@ -446,6 +448,7 @@
 .comment-btn:hover {
   background: #1fe5ff;
 }
+
 
 
 
