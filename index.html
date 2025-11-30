@@ -1,172 +1,54 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>호그주먹전</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .user-menu {
-      position: relative;
-      display: inline-block;
-    }
-
-    .user-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 18px;
-      cursor: pointer;
-      overflow: hidden;
-    }
-
-    .user-dropdown {
-      display: none;
-      position: absolute;
-      top: 45px;
-      right: 0;
-      background-color: white;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 1000;
-      border-radius: 5px;
-    }
-
-    .user-dropdown button {
-      background: none;
-      border: none;
-      padding: 10px 20px;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .user-dropdown button:hover {
-      background-color: #f0f0f0;
-    }
-
-    nav {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    nav .right {
-      margin-left: auto;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호그 주먹전 - 공식 홈</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>호그주먹전</h1>
-      <nav>
-        <button onclick="goToHome()">홈</button>
-        <button onclick="goToBoard()">게시판</button>
-        <button onclick="goToRanking()">랭킹</button> <!-- ✅ 이 줄 추가 -->
-        <div class="right" id="nav-right">
-          <!-- 로그인 버튼 또는 아이콘이 여기에 들어감 -->
-          <button onclick="goToLogin()" id="login-btn">로그인</button>
-        </div>
+<body class="bg">
+  <header class="nav">
+    <div class="nav-inner">
+      <h1 class="logo">Hog Boxing</h1>
+      <nav class="menu">
+        <a href="index.html">홈</a>
+        <a href="ranking.html">랭킹</a>
+        <a href="board.html">게시판</a>
+        <a href="login.html">로그인</a>
       </nav>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="home">
-        <h2>환영합니다!</h2>
-        <p>호그주먹전 커뮤니티에 오신 것을 환영합니다.</p>
-      </section>
-    </main>
+  <section class="hero">
+    <div class="hero-content">
+      <h2>호그 주먹전</h2>
+      <p>오버워치 최고의 근접 전투 모드 · 공식 커뮤니티</p>
+      <a href="board.html" class="btn-primary">게시판 바로가기</a>
+    </div>
+  </section>
 
-    <footer>
-      <p>&copy; 2025 ddooeeladda</p>
-    </footer>
-  </div>
+  <section class="cards">
+    <div class="card">
+      <h3>랭킹 시스템</h3>
+      <p>플레이어들의 실시간 전투 성능을 반영하는 랭킹 기능.</p>
+      <a href="ranking.html" class="btn-outline">확인하기</a>
+    </div>
 
-  <script>
-    function goToHome() {
-      window.location.href = "index.html";
-    }
+    <div class="card">
+      <h3>게시판</h3>
+      <p>다른 플레이어들과 소통하고 정보를 공유해보세요.</p>
+      <a href="board.html" class="btn-outline">바로가기</a>
+    </div>
 
-    function goToBoard() {
-      window.location.href = "board.html";
-    }
-    function goToRanking() {
-    window.location.href = "ranking.html";
-    }
-    
-    function goToLogin() {
-      if (window.currentUser) {
-        alert("이미 계정에 로그인하였습니다!");
-        return;
-      }
-      window.location.href = "login.html";
-    }
+    <div class="card">
+      <h3>로그인 / 회원가입</h3>
+      <p>소셜 로그인 + 계정 생성 기능을 이용할 수 있습니다.</p>
+      <a href="login.html" class="btn-outline">시작하기</a>
+    </div>
+  </section>
 
-    function toggleDropdown() {
-      const dropdown = document.getElementById("user-dropdown");
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-
-    function logout() {
-      import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js").then(({ getAuth, signOut }) => {
-        const auth = getAuth();
-        signOut(auth).then(() => {
-          alert("로그아웃 되었습니다.");
-          location.reload();
-        });
-      });
-    }
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-      authDomain: "hogboxing-35911.firebaseapp.com",
-      projectId: "hogboxing-35911",
-      storageBucket: "hogboxing-35911.firebasestorage.app",
-      messagingSenderId: "911173936135",
-      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-      measurementId: "G-FJPPNS2QQN"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    const navRight = document.getElementById("nav-right");
-
-    onAuthStateChanged(auth, (user) => {
-      window.currentUser = user;
-
-      if (user) {
-        const displayName = user.displayName || user.email || "사용자";
-        const firstChar = displayName[0].toUpperCase();
-
-        let iconContent = "";
-        if (user.photoURL) {
-          iconContent = `<img src="${user.photoURL}" alt="User" style="width: 100%; height: 100%; border-radius: 50%;" />`;
-        } else {
-          iconContent = `<span>${firstChar}</span>`;
-        }
-
-        navRight.innerHTML = `
-          <div class="user-menu">
-            <div class="user-icon" onclick="toggleDropdown()">${iconContent}</div>
-            <div class="user-dropdown" id="user-dropdown">
-              <button onclick="logout()">로그아웃</button>
-            </div>
-          </div>
-        `;
-      }
-    });
-  </script>
+  <footer class="footer">
+    <p>© 2025 Hog Boxing. All rights reserved.</p>
+  </footer>
 </body>
 </html>
