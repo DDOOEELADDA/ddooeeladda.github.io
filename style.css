@@ -60,18 +60,20 @@
   height: 100vh;
   padding-top: 130px;
   display: flex;
+  flex-direction: column; /* 수직 배치 */
   justify-content: center;
-  align-items: center; /* 중앙 정렬 유지 */
+  align-items: center;
   text-align: center;
+  position: relative;
 }
 
 .hero-content {
-  margin-top: -100px;
-  padding: 0 20px; /* 좌우 여백으로 모바일에서 꽉 차지 않게 함 */
+  padding: 0 20px;
+  margin: 0;              /* ← 음수 마진 제거 */
 }
 
 .hero-content h2 {
-  margin-top: -140px;
+  margin: 0 0 20px 0;     /* 아래 여백 20px */
   font-size: 64px;
   font-weight: 700;
   color: #00d9ff;
@@ -79,8 +81,8 @@
 }
 
 .hero-content p {
+  margin: 0 0 30px 0;     /* 제목과 버튼 사이 여백 30px */
   font-size: 20px;
-  margin-top: -80px;
   color: #d0d0d0;
 }
 
@@ -514,6 +516,7 @@
   50%  { transform: translateY(8px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.6; }
 }
+
 
 
 
