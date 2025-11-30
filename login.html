@@ -1,172 +1,40 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>로그인</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    header h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .login-form label {
-      font-size: 14px;
-      color: #555;
-    }
-
-    .login-form input {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .login-form .button-container {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .login-form .button-container button {
-      width: 48%;
-      padding: 12px;
-      background-color: #007bff;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .login-form .button-container button:hover {
-      background-color: #0056b3;
-    }
-
-    footer {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    footer button {
-      background: none;
-      border: none;
-      color: #007bff;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    footer button:hover {
-      color: #0056b3;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>로그인</h1>
-    </header>
+<body class="bg">
 
-    <main>
-      <section class="login-form">
-        <form id="login-form">
-          <div>
-            <label for="email">이메일:</label>
-            <input type="email" id="email" required placeholder="이메일을 입력하세요" />
-          </div>
-          <div>
-            <label for="password">비밀번호:</label>
-            <input type="password" id="password" required placeholder="비밀번호를 입력하세요" />
-          </div>
-
-          <div class="button-container">
-            <button type="submit">로그인</button>
-            <button type="button" onclick="goToSignup()">회원가입</button>
-          </div>
-        </form>
-      </section>
-    </main>
-
-    <footer>
-      <button onclick="goHome()">홈으로 가기</button>
-      <p>&copy; 2025 ddooeeladda</p>
-    </footer>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
   </div>
+</header>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+<div class="page-container" style="max-width:480px;">
+  <h1 class="page-title">로그인</h1>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-      authDomain: "hogboxing-35911.firebaseapp.com",
-      projectId: "hogboxing-35911",
-      storageBucket: "hogboxing-35911.firebasestorage.app",
-      messagingSenderId: "911173936135",
-      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-      measurementId: "G-FJPPNS2QQN"
-    };
+  <input class="input" id="email" placeholder="이메일">
+  <input class="input" id="password" type="password" placeholder="비밀번호">
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  <button class="btn-primary" id="loginBtn">로그인</button>
 
-    const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  <hr style="border-color:#333; margin:25px 0;">
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+  <button class="btn-outline" id="googleLogin">Google 로그인</button>
 
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("로그인 성공!");
-        window.location.href = "index.html";
-      } catch (error) {
-        // 보안을 위해 에러 메시지 숨기기
-        alert("이메일 또는 비밀번호가 유효하지 않습니다.");
-        console.error("로그인 실패:", error); // 콘솔에는 남겨둠 (개발자 참고용)
-      }
-    });
+  <p style="margin-top:20px; color:#aaa;">
+    계정이 없다면? <a href="signup.html" style="color:#00d9ff;">회원가입</a>
+  </p>
+</div>
 
-    // 전역에서 쓸 수 있도록 함수 등록
-    window.goHome = function () {
-      window.location.href = "index.html";
-    };
-
-    window.goToSignup = function () {
-      window.location.href = "signup.html";
-    };
-  </script>
 </body>
 </html>
