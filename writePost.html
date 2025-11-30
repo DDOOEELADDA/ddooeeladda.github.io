@@ -1,85 +1,33 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>글쓰기</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>글쓰기</h1>
-    </header>
+<body class="bg">
 
-    <main>
-      <section class="write-post">
-        <input type="text" id="writer" placeholder="작성자 이름" /><br />
-        <input type="text" id="title" placeholder="제목" /><br />
-        <textarea id="content" placeholder="내용" rows="10" cols="50"></textarea><br />
-        <button onclick="submitPost()">작성 완료</button>
-      </section>
-    </main>
-
-    <footer>
-      <button onclick="goToHome()">홈으로 돌아가기</button>
-      <p>&copy; 2025 ddooeeladda</p>
-    </footer>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
   </div>
+</header>
 
-  <!-- Firebase SDK (브라우저용) 가져오기 -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+<div class="page-container">
+  <h1 class="page-title">글쓰기</h1>
 
-  <!-- 내 코드 -->
-  <script>
-    // Firebase 설정
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-      authDomain: "hogboxing-35911.firebaseapp.com",
-      projectId: "hogboxing-35911",
-      storageBucket: "hogboxing-35911.appspot.com",
-      messagingSenderId: "911173936135",
-      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-      measurementId: "G-FJPPNS2QQN"
-    };
+  <input class="input" id="titleInput" placeholder="제목">
+  <textarea class="textarea" id="contentInput" placeholder="내용을 입력하세요"></textarea>
 
-    // Firebase 초기화
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  <button class="btn-primary" id="postSubmit">등록하기</button>
+  <a href="board.html" class="btn-outline" style="margin-left:20px;">취소</a>
+</div>
 
-    // 글 작성 함수
-    function submitPost() {
-      const writer = document.getElementById('writer').value.trim();
-      const title = document.getElementById('title').value.trim();
-      const content = document.getElementById('content').value.trim();
-
-      if (!writer || !title || !content) {
-        alert("모든 칸을 채워주세요!");
-        return;
-      }
-
-      db.collection("posts").add({
-        writer: writer,
-        title: title,
-        content: content,
-        comments: 0,
-        createdAt: new Date()
-      })
-      .then(() => {
-        alert("글 작성 완료!");
-        window.location.href = "board.html";
-      })
-      .catch((error) => {
-        console.error("글 작성 실패", error);
-        alert("글 작성 중 오류가 발생했습니다.");
-      });
-    }
-
-    // 홈으로 돌아가기 함수
-    function goToHome() {
-      window.location.href = "index.html";
-    }
-  </script>
 </body>
 </html>
