@@ -1,5 +1,4 @@
 // firebase.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
@@ -7,7 +6,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
   authDomain: "hogboxing-35911.firebaseapp.com",
-  databaseURL: "https://hogboxing-35911-default-rtdb.asia-southeast1.firebasedatabase.app",  // 🔥 추가됨
+  databaseURL: "https://hogboxing-35911-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "hogboxing-35911",
   storageBucket: "hogboxing-35911.firebasestorage.app",
   messagingSenderId: "911173936135",
@@ -23,4 +22,5 @@ if (!firebase.apps.length) {
 // 전역 사용
 const auth = firebase.auth();
 const db = firebase.database();
+
 
