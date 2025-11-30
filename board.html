@@ -58,7 +58,7 @@
 <script src="firebase.js"></script>
 
 <script>
-  const postsPerPage = 10; // 한 페이지에 표시할 글 수
+  const postsPerPage = 10;
   let currentPage = 1;
   let postsData = [];
 
@@ -69,11 +69,20 @@
   }
 
   async function loadPosts() {
-    const snapshot = await firebase.database().ref("posts").orderByChild("timestamp").get();
+    const snapshot = await firebase.database().ref("posts").get();
     postsData = [];
 
     snapshot.forEach((childSnapshot) => {
-      postsData.push({ key: childSnapshot.key, ...childSnapshot.val() });
+      const data = childSnapshot.val();
+      postsData.push({
+        key: childSnapshot.key,
+        title: data.title || "제목 없음",
+        author: data.writer || "익명",
+        content: data.content || "",
+        timestamp: data.createdAt ? new Date(data.createdAt).getTime() : 0,
+        comments: data.comments || [],
+        views: data.views || 0
+      });
     });
 
     // 최신 글이 위로 오도록 정렬
@@ -98,7 +107,7 @@
         <td><a href="viewPost.html?id=${post.key}">${post.title}</a></td>
         <td>${post.author}</td>
         <td>${formatDate(post.timestamp)}</td>
-        <td>${post.views || 0}</td>
+        <td>${post.views}</td>
       `;
       tbody.appendChild(tr);
     });
