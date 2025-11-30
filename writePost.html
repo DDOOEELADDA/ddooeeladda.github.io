@@ -23,7 +23,7 @@
 <div class="page-container">
   <h1 class="page-title">글쓰기</h1>
   <input class="input" id="titleInput" placeholder="제목을 입력하세요">
-  <input class="input" id="authorInput" placeholder="작성자 이름">
+  <textarea class="textarea" id="contentInput" placeholder="내용을 입력하세요"></textarea>
   <button class="btn-primary" id="postSubmit">등록하기</button>
   <a href="board.html" class="btn-outline" style="margin-left:20px;">취소</a>
 </div>
@@ -33,20 +33,41 @@
 <script src="firebase.js"></script>
 
 <script>
+// HTML 이스케이프 (XSS 방지)
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+}
+
+// 비로그인 사용자의 IP 기반 작성자
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    const ip = data.ip.replace(/\./g, "_");
+    return `Boxer_${ip}`;
+  } catch {
+    return "Boxer";
+  }
+}
+
 document.getElementById("postSubmit").addEventListener("click", async () => {
   const title = document.getElementById("titleInput").value.trim();
-  let author = document.getElementById("authorInput").value.trim();
-  if (!title) { alert("제목을 입력하세요"); return; }
-  if (!author) author = "익명";
+  const content = document.getElementById("contentInput").value.trim();
+  if (!title || !content) { alert("제목과 내용을 입력하세요"); return; }
 
-  const date = new Date();
-  const createdAt = date.toLocaleString("ko-KR", { hour12: true, timeZone: "Asia/Seoul" });
+  const author = await getUserIP();
+  const createdAt = new Date().toLocaleString("ko-KR", { hour12: true, timeZone: "Asia/Seoul" });
 
-  // Firebase에 최소 정보 저장 + 조회수 초기화
+  // Firebase에 저장
   const newPostKey = firebase.database().ref("posts").push().key;
   await firebase.database().ref("posts/" + newPostKey).set({
     number: newPostKey,
-    title: title,
+    title: escapeHtml(title),
+    content: escapeHtml(content).replace(/\n/g, "<br>"),
     author: author,
     createdAt: createdAt,
     views: 0
@@ -56,5 +77,6 @@ document.getElementById("postSubmit").addEventListener("click", async () => {
   location.href = "board.html";
 });
 </script>
+
 </body>
 </html>
