@@ -61,9 +61,14 @@
   padding-top: 130px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;  /* 중앙 → 위쪽으로 */
   text-align: center;
 }
+
+.hero-content {
+  margin-top: 80px;   /* 중앙보다 좀 위 */
+}
+
 
 .hero-content h2 {
   font-size: 64px;
@@ -153,3 +158,4 @@
   padding: 24px 0;
   margin-top: 80px;
 }
+
