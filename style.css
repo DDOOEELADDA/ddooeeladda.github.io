@@ -486,7 +486,7 @@
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute;
-  bottom: 100px;
+  bottom: 150px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -517,6 +517,7 @@
   50%  { transform: translateY(8px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.6; }
 }
+
 
 
 
