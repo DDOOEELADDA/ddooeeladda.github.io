@@ -1,41 +1,77 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 보기</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>게시글 보기 - 호그 주먹전</title>
+  <link rel="stylesheet" href="style.css" />
+
 </head>
 <body class="bg">
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Hog Boxing</a>
+      <nav class="menu">
+        <a href="index.html">홈</a>
+        <a href="ranking.html">랭킹</a>
+        <a href="board.html">게시판</a>
+        <a href="login.html">로그인</a>
+      </nav>
+    </div>
+  </header>
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="logo">Hog Boxing</a>
-    <nav class="menu">
-      <a href="index.html">홈</a>
-      <a href="ranking.html">랭킹</a>
-      <a href="board.html">게시판</a>
-      <a href="login.html">로그인</a>
-    </nav>
+  <!-- Hero 제목 -->
+  <section class="hero small-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">게시글 보기</h1>
+    </div>
+  </section>
+
+  <!-- 메인 본문 -->
+  <div class="post-container">
+
+    <!-- 글 내용 -->
+    <div class="post-card">
+      <h2 id="postTitle" class="post-title">제목 로딩중...</h2>
+      <div class="post-meta">
+        <span id="postAuthor">작성자</span> ·
+        <span id="postDate">0000-00-00</span>
+      </div>
+
+      <div class="post-content" id="postContent">
+        게시글을 불러오는 중입니다...
+      </div>
+
+      <div class="post-buttons">
+        <button onclick="location.href='board.html'" class="back-btn">목록으로</button>
+      </div>
+    </div>
+
+    <!-- 댓글 -->
+    <div class="comment-card">
+      <h3>댓글</h3>
+
+      <div id="comment-list" class="comment-list">
+        <!-- script.js에서 자동으로 로드 -->
+      </div>
+
+      <div class="comment-input-box">
+        <textarea id="comment-input" placeholder="댓글을 입력해줘(로그인 시 닉네임 표시)." maxlength="500"></textarea>
+        <button class="comment-btn" onclick="submitComment()">댓글 작성</button>
+      </div>
+    </div>
+
   </div>
-</header>
 
-<div class="page-container">
-  <h1 class="page-title" id="postTitle">제목 로딩중...</h1>
+  <script src="firebase.js"></script>
+  <script src="script.js"></script>
 
-  <p id="postAuthor" style="color:#bbb; margin-bottom:10px;"></p>
-  <p id="postContent" style="white-space:pre-wrap;"></p>
-
-  <hr style="border-color:#333; margin:25px 0;">
-
-  <h3 style="color:#00d9ff">댓글</h3>
-  <div id="commentList"></div>
-
-  <textarea class="textarea" id="commentInput" placeholder="댓글을 입력하세요"></textarea>
-  <button class="btn-primary" id="submitComment">댓글 작성</button>
-
-  <br><br>
-  <a href="board.html" class="btn-outline">목록으로 돌아가기</a>
-</div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      loadPostDetail();
+      loadComments();
+    });
+  </script>
 
 </body>
 </html>
