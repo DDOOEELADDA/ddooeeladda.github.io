@@ -6,19 +6,17 @@
   <title>게시판 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
-<body>
-
-  <!-- 네비게이션 -->
-  <header class="navbar">
-    <a href="index.html" class="logo">Hog Boxing</a>
-    <nav>
-      <a href="board.html">게시판</a>
-      <a href="ranking.html">랭킹</a>
-      <a href="login.html" id="loginLink">로그인</a>
-      <a href="signup.html" id="signupLink">회원가입</a>
-      <span id="userInfo" style="display:none;"></span>
-    </nav>
+<body class="bg">
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Hog Boxing</a>
+      <nav class="menu">
+        <a href="index.html">홈</a>
+        <a href="ranking.html">랭킹</a>
+        <a href="board.html">게시판</a>
+        <a href="login.html">로그인</a>
+      </nav>
+    </div>
   </header>
 
   <!-- 히어로 영역(섹션 제목) -->
@@ -68,3 +66,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
