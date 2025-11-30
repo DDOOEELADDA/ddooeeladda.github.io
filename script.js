@@ -1,7 +1,3 @@
-// Firebase 초기화
-const auth = firebase.auth();
-const db = firebase.database();
-
 // -----------------------------
 // 로그인 상태 표시
 // -----------------------------
@@ -239,5 +235,6 @@ if (typeof AOS !== "undefined") {
 }
 
 }
+
 
 
