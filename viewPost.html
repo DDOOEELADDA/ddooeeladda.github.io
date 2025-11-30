@@ -23,6 +23,7 @@
 <div class="page-container">
   <h1 class="page-title" id="postTitle"></h1>
   <p id="postInfo"></p>
+  <div id="postContent" style="margin-top:20px;"></div>
   <a href="board.html" class="btn-outline">목록으로 돌아가기</a>
 </div>
 
@@ -36,10 +37,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
   const title = decodeURIComponent(getQueryParam("title") || "");
   const author = decodeURIComponent(getQueryParam("author") || "");
   const createdAt = decodeURIComponent(getQueryParam("createdAt") || "");
+  const content = decodeURIComponent(getQueryParam("content") || "");
 
   document.getElementById("postTitle").textContent = title;
   document.getElementById("postInfo").textContent = `작성자: ${author} | 작성일: ${createdAt}`;
+  document.getElementById("postContent").innerHTML = content;
 });
 </script>
+
 </body>
 </html>
