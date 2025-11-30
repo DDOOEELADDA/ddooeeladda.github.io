@@ -2,9 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>글쓰기</title>
+  <title>글쓰기 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg">
 
 <header class="nav">
@@ -22,12 +23,47 @@
 <div class="page-container">
   <h1 class="page-title">글쓰기</h1>
 
-  <input class="input" id="titleInput" placeholder="제목">
+  <input class="input" id="titleInput" placeholder="제목을 입력하세요">
   <textarea class="textarea" id="contentInput" placeholder="내용을 입력하세요"></textarea>
 
   <button class="btn-primary" id="postSubmit">등록하기</button>
   <a href="board.html" class="btn-outline" style="margin-left:20px;">취소</a>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+  document.getElementById("postSubmit").addEventListener("click", async () => {
+    const title = document.getElementById("titleInput").value.trim();
+    const content = document.getElementById("contentInput").value.trim();
+
+    if (!title || !content) {
+      alert("제목과 내용을 입력해주세요!");
+      return;
+    }
+
+    const user = firebase.auth().currentUser;
+
+    const author = user ? user.displayName || "익명" : "Boxer";
+
+    const postData = {
+      title: title,
+      content: content.replace(/\n/g, "<br>"),
+      author: author,
+      timestamp: Date.now()
+    };
+
+    const newPostKey = firebase.database().ref("posts").push().key;
+
+    await firebase.database().ref("posts/" + newPostKey).set(postData);
+
+    alert("게시글이 등록되었습니다!");
+    location.href = "board.html";
+  });
+</script>
 
 </body>
 </html>
