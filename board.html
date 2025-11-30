@@ -1,158 +1,94 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>게시판 - 호그 주먹전</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>게시판 - 호그 주먹전</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body class="bg">
-  <header class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="logo">Hog Boxing</a>
-      <nav class="menu">
-        <a href="index.html">홈</a>
-        <a href="ranking.html">랭킹</a>
-        <a href="board.html">게시판</a>
-        <a href="login.html">로그인</a>
-      </nav>
-    </div>
-  </header>
 
-  <section class="hero small-hero">
-    <div class="hero-content">
-      <h1 class="hero-title">커뮤니티 게시판</h1>
-      <p class="hero-subtitle">호그 주먹전 공식 포럼</p>
-    </div>
-  </section>
-
-  <div class="board-container">
-    <div class="board-header">
-      <h2>전체 글 목록</h2>
-      <button class="write-btn" onclick="location.href='writePost.html'">글쓰기</button>
-    </div>
-
-    <table class="board-table">
-      <thead>
-        <tr>
-          <th style="width:60px;">번호</th>
-          <th>제목</th>
-          <th style="width:150px;">작성자</th>
-          <th style="width:130px;">작성일</th>
-          <th style="width:80px;">조회</th>
-        </tr>
-      </thead>
-      <tbody id="postList">
-        <!-- 게시글 목록 렌더링 -->
-      </tbody>
-    </table>
-
-    <div class="pagination" id="pagination"></div>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
   </div>
+</header>
+
+<div class="board-container">
+  <div class="board-header">
+    <h2>전체 글 목록</h2>
+    <button class="write-btn" onclick="location.href='writePost.html'">글쓰기</button>
+  </div>
+
+  <table class="board-table">
+    <thead>
+      <tr>
+        <th style="width:60px;">번호</th>
+        <th>제목</th>
+        <th style="width:150px;">작성자</th>
+        <th style="width:150px;">작성일</th>
+        <th style="width:80px;">조회</th>
+      </tr>
+    </thead>
+    <tbody id="postList"></tbody>
+  </table>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="firebase.js"></script>
 
 <script>
-  const postsPerPage = 10;
-  let currentPage = 1;
-  let postsData = [];
+async function loadPosts() {
+  const snapshot = await firebase.database().ref("posts").get();
+  const posts = [];
 
-  // 한국어 createdAt 문자열 파싱
-  function parseKoreanDate(str) {
-    if (!str) return new Date(0);
-    const regex = /(\d+)년 (\d+)월 (\d+)일 (오전|오후) (\d+):(\d+):(\d+)초 UTC([+-]\d+)/;
-    const match = str.match(regex);
-    if (!match) return new Date(0);
+  snapshot.forEach((child) => {
+    posts.push({ key: child.key, ...child.val() });
+  });
 
-    let [_, year, month, day, ampm, hour, minute, second, tz] = match;
-    year = parseInt(year);
-    month = parseInt(month) - 1;
-    day = parseInt(day);
-    hour = parseInt(hour);
-    minute = parseInt(minute);
-    second = parseInt(second);
+  // 최신 글 위로 정렬
+  posts.sort((a,b)=>a.createdAt < b.createdAt ? 1:-1);
 
-    if (ampm === "오후" && hour < 12) hour += 12;
-    if (ampm === "오전" && hour === 12) hour = 0;
+  const tbody = document.getElementById("postList");
+  tbody.innerHTML = "";
 
-    // UTC+9 보정
-    return new Date(Date.UTC(year, month, day, hour - 9, minute, second));
-  }
+  posts.forEach((post,index)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index+1}</td>
+      <td><a href="#">${post.title}</a></td>
+      <td>${post.author}</td>
+      <td>${post.createdAt}</td>
+      <td id="views-${post.key}">${post.views || 0}</td>
+    `;
+    tbody.appendChild(tr);
 
-  function formatDate(timestamp) {
-    const d = new Date(timestamp);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ` +
-           `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  }
+    // 글 클릭 시 조회수 1 증가 + viewPost.html 이동
+    tr.querySelector("a").addEventListener("click", async (e)=>{
+      e.preventDefault();
+      const postRef = firebase.database().ref("posts/" + post.key + "/views");
+      const snap = await postRef.get();
+      const currentViews = snap.exists() ? snap.val() : 0;
+      await postRef.set(currentViews + 1);
 
-  async function loadPosts() {
-    const snapshot = await firebase.database().ref("posts").get();
-    postsData = [];
+      // 실시간 조회수 업데이트
+      document.getElementById(`views-${post.key}`).textContent = currentViews + 1;
 
-    snapshot.forEach((childSnapshot) => {
-      const data = childSnapshot.val();
-      const dateObj = parseKoreanDate(data.createdAt);
-      postsData.push({
-        key: childSnapshot.key,
-        title: data.title || "제목 없음",
-        author: data.writer || "익명",
-        content: data.content || "",
-        timestamp: dateObj.getTime(),
-        comments: data.comments || [],
-        views: data.views || 0
-      });
+      // viewPost.html로 이동 (query string 전달)
+      const url = `viewPost.html?title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author)}&createdAt=${encodeURIComponent(post.createdAt)}`;
+      window.location.href = url;
     });
+  });
+}
 
-    // 최신 글 위로 정렬
-    postsData.sort((a, b) => b.timestamp - a.timestamp);
-
-    renderPosts();
-    renderPagination();
-  }
-
-  function renderPosts() {
-    const tbody = document.getElementById("postList");
-    tbody.innerHTML = "";
-
-    const start = (currentPage - 1) * postsPerPage;
-    const end = start + postsPerPage;
-    const pagePosts = postsData.slice(start, end);
-
-    pagePosts.forEach((post, index) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${start + index + 1}</td>
-        <td><a href="viewPost.html?id=${post.key}">${post.title}</a></td>
-        <td>${post.author}</td>
-        <td>${formatDate(post.timestamp)}</td>
-        <td>${post.views}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function renderPagination() {
-    const pagination = document.getElementById("pagination");
-    pagination.innerHTML = "";
-    const totalPages = Math.ceil(postsData.length / postsPerPage);
-
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      btn.className = i === currentPage ? "active" : "";
-      btn.addEventListener("click", () => {
-        currentPage = i;
-        renderPosts();
-        renderPagination();
-      });
-      pagination.appendChild(btn);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", loadPosts);
+document.addEventListener("DOMContentLoaded", loadPosts);
 </script>
 </body>
 </html>
