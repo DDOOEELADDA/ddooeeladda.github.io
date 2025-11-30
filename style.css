@@ -249,6 +249,88 @@
   margin-top: 6px;
 }
 
+/* 작은 hero (게시판/랭킹 제목 영역) */
+.small-hero {
+  height: 300px;
+  padding-top: 130px;
+}
+
+.small-hero .hero-title {
+  font-size: 56px;
+}
+
+.board-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 20px;
+  background: rgba(15, 15, 30, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+}
+
+/* header 내부 */
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.write-btn {
+  padding: 10px 20px;
+  border: none;
+  background: #00cfff;
+  color: #000;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.write-btn:hover {
+  background: #2be3ff;
+}
+
+/* 게시판 테이블 */
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.board-table th, .board-table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.board-table tr:hover {
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+}
+
+/* 페이지네이션 */
+.pagination {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  background: rgba(0, 200, 255, 0.4);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #00d9ff;
+  color: #000;
+}
+
 
 
 
