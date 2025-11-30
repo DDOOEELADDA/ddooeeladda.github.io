@@ -1,167 +1,155 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-  }
-  
-  .container {
-    max-width: 800px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-  }
-  
-  header {
-    text-align: center;
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 20px;
-  }
-  
-  nav button {
-    margin: 5px;
-    padding: 10px 15px;
-    background-color: #eee;
-    border: 1px solid #ccc;
-    cursor: pointer;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  thead {
-    background-color: #ddd;
-  }
-  
-  th, td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
-  }
-  
-  footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #888;
-  }
-  #board {
-  width: 80%;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.post {
-  background: #f4f4f4;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 10px;
-}
-/* 전체 페이지 기본 스타일 */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f8f9fa;
+/* 기본 초기화 */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: "Pretendard", sans-serif;
+}
+
+/* 전체 배경 */
+.bg {
+  background: radial-gradient(circle at top, #1b1b1b, #0a0a0a 80%);
+  color: #e5e5e5;
+  min-height: 100vh;
+}
+
+/* 상단 네비게이션 */
+.nav {
+  width: 100%;
+  padding: 18px 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.nav-inner {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 700;
+  color: #00d9ff;
+  text-shadow: 0 0 8px #00d9ff;
+}
+
+.menu a {
+  margin-left: 22px;
+  font-size: 16px;
+  text-decoration: none;
+  color: #d0d0d0;
+  transition: 0.2s;
+}
+
+.menu a:hover {
+  color: #00d9ff;
+  text-shadow: 0 0 6px #00d9ff;
+}
+
+/* 히어로 섹션 */
+.hero {
+  width: 100%;
+  height: 100vh;
+  padding-top: 130px;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-}
-
-/* 로그인 폼을 감싸는 컨테이너 */
-.container {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 420px; /* 화면 크기에 따라 유동적 */
   text-align: center;
 }
 
-/* 헤더 스타일 */
-header h1 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 20px;
+.hero-content h2 {
+  font-size: 64px;
+  font-weight: 700;
+  color: #00d9ff;
+  text-shadow: 0 0 12px #00d9ff;
 }
 
-/* 로그인 폼 스타일 */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.hero-content p {
+  font-size: 20px;
+  margin-top: 10px;
+  color: #d0d0d0;
 }
 
-.login-form label {
-  font-size: 14px;
-  color: #555;
-  text-align: left;
+.btn-primary {
+  margin-top: 26px;
+  padding: 14px 26px;
+  background: #00d9ff;
+  border-radius: 6px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  transition: 0.25s;
 }
 
-.login-form input {
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: border-color 0.3s;
+.btn-primary:hover {
+  background: #00b4d4;
 }
 
-.login-form input:focus {
-  border-color: #007bff; /* 입력 중 포커스 색상 */
-  outline: none;
+/* 카드 섹션 */
+.cards {
+  width: 90%;
+  max-width: 1200px;
+  margin: 60px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
 }
 
-.login-form button {
-  padding: 14px;
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+.card {
+  background: #141414;
+  border: 1px solid #222;
+  padding: 26px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.08);
+  transition: 0.25s;
 }
 
-.login-form button:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px); /* 마우스 오버 시 버튼 살짝 올라가는 효과 */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 22px rgba(0, 255, 255, 0.2);
 }
 
-/* 푸터 스타일 */
-footer {
-  margin-top: 20px;
+.card h3 {
+  font-size: 24px;
+  color: #00d9ff;
+  margin-bottom: 12px;
 }
 
-footer button {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 16px;
-  cursor: pointer;
-  text-decoration: underline;
+.card p {
+  font-size: 15px;
+  color: #bbbbbb;
+  margin-bottom: 18px;
 }
 
-footer button:hover {
-  color: #0056b3;
+/* 아웃라인 버튼 */
+.btn-outline {
+  display: inline-block;
+  padding: 10px 18px;
+  color: #00d9ff;
+  border: 1px solid #00d9ff;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.25s;
 }
 
-/* 반응형 디자인 (모바일 대응) */
-@media (max-width: 480px) {
-  .container {
-    padding: 20px;
-  }
-
-  header h1 {
-    font-size: 1.6rem;
-  }
-
-  .login-form input, .login-form button {
-    font-size: 14px;
-  }
+.btn-outline:hover {
+  background: #00d9ff;
+  color: #000;
 }
 
+/* 푸터 */
+.footer {
+  text-align: center;
+  color: #6f6f6f;
+  padding: 24px 0;
+  margin-top: 80px;
+}
