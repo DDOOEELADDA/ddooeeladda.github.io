@@ -71,7 +71,7 @@
 }
 
 .hero-content h2 {
-  margin-top: -130px;
+  margin-top: -140px;
   font-size: 64px;
   font-weight: 700;
   color: #00d9ff;
@@ -80,7 +80,7 @@
 
 .hero-content p {
   font-size: 20px;
-  margin-top: -90px;
+  margin-top: -80px;
   color: #d0d0d0;
 }
 
@@ -514,6 +514,7 @@
   50%  { transform: translateY(8px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.6; }
 }
+
 
 
 
