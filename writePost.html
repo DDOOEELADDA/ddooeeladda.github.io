@@ -28,12 +28,6 @@
   <a href="board.html" class="btn-outline" style="margin-left:20px;">취소</a>
 </div>
 
-  <footer>
-    <button onclick="goToHome()">홈으로 돌아가기</button>
-    <p>&copy; 2025 ddooeeladda</p>
-  </footer>
-</div>
-
 <!-- Firebase SDK (Firestore compat) -->
 <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
@@ -55,7 +49,7 @@
   const db = firebase.firestore();
 
   // 글 작성 함수
-  function submitPost() {
+  function postSubmit() {
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
 
@@ -88,3 +82,4 @@
 </script>
 </body>
 </html>
+
