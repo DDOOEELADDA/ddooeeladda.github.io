@@ -5,7 +5,6 @@
   <title>글쓰기 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="bg">
 
 <header class="nav">
@@ -36,6 +35,26 @@
 <script src="firebase.js"></script>
 
 <script>
+  // HTML 특수문자 처리
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+  }
+
+  async function getUserIP() {
+    try {
+      const res = await fetch("https://api.ipify.org?format=json");
+      const data = await res.json();
+      const ip = data.ip.replace(/\./g, "_"); // .을 _로 변환
+      return `Boxer_${ip}`;
+    } catch {
+      return "Boxer";
+    }
+  }
+
   document.getElementById("postSubmit").addEventListener("click", async () => {
     const title = document.getElementById("titleInput").value.trim();
     const content = document.getElementById("contentInput").value.trim();
@@ -46,12 +65,17 @@
     }
 
     const user = firebase.auth().currentUser;
+    let author = "";
 
-    const author = user ? user.displayName || "익명" : "Boxer";
+    if (user) {
+      author = user.displayName || "익명";
+    } else {
+      author = await getUserIP();
+    }
 
     const postData = {
-      title: title,
-      content: content.replace(/\n/g, "<br>"),
+      title: escapeHtml(title),
+      content: escapeHtml(content).replace(/\n/g, "<br>"),
       author: author,
       timestamp: Date.now()
     };
