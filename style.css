@@ -480,6 +480,41 @@
   }
 }
 
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 28px;
+  color: white;
+  opacity: 0.85;
+  cursor: default;
+}
+
+.scroll-indicator span {
+  animation: bounce 1.5s infinite;
+}
+
+.scroll-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+.scroll-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.scroll-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%   { transform: translateY(0); opacity: 0.6; }
+  50%  { transform: translateY(8px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.6; }
+}
+
 
 
 
