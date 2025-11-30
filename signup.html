@@ -1,159 +1,37 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>회원가입</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    header h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .signup-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .signup-form label {
-      font-size: 14px;
-      color: #555;
-    }
-
-    .signup-form input {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .signup-form button {
-      width: 100%;
-      padding: 12px;
-      background-color: #28a745;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .signup-form button:hover {
-      background-color: #1e7e34;
-    }
-
-    footer {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    footer button {
-      background: none;
-      border: none;
-      color: #007bff;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    footer button:hover {
-      color: #0056b3;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>회원가입</h1>
-    </header>
+<body class="bg">
 
-    <main>
-      <section class="signup-form">
-        <form id="signup-form">
-          <div>
-            <label for="email">이메일:</label>
-            <input type="email" id="email" required placeholder="이메일을 입력하세요" />
-          </div>
-          <div>
-            <label for="password">비밀번호:</label>
-            <input type="password" id="password" required placeholder="비밀번호 (6자 이상)" />
-          </div>
-
-          <button type="submit">가입하기</button>
-        </form>
-      </section>
-    </main>
-
-    <footer>
-      <button onclick="goToLogin()">로그인으로 돌아가기</button>
-      <p>&copy; 2025 ddooeeladda</p>
-    </footer>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
   </div>
+</header>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+<div class="page-container" style="max-width:500px;">
+  <h1 class="page-title">회원가입</h1>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-      authDomain: "hogboxing-35911.firebaseapp.com",
-      projectId: "hogboxing-35911",
-      storageBucket: "hogboxing-35911.firebasestorage.app",
-      messagingSenderId: "911173936135",
-      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-      measurementId: "G-FJPPNS2QQN"
-    };
+  <input class="input" id="email" placeholder="이메일">
+  <input class="input" id="nickname" placeholder="닉네임">
+  <input class="input" id="password" type="password" placeholder="비밀번호">
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  <button class="btn-primary" id="signupBtn">회원가입</button>
 
-    const signupForm = document.getElementById('signup-form');
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  <hr style="border-color:#333; margin:25px 0;">
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+  <button class="btn-outline" id="googleSignup">Google로 가입하기</button>
+</div>
 
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("회원가입 성공! 로그인 페이지로 이동합니다.");
-        window.location.href = "login.html";
-      } catch (error) {
-        alert("회원가입 실패: " + error.message);
-        console.error("회원가입 에러:", error);
-      }
-    });
-
-    // 전역에서 쓸 수 있게 등록
-    window.goToLogin = function () {
-      window.location.href = "login.html";
-    };
-  </script>
 </body>
 </html>
