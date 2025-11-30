@@ -449,6 +449,37 @@
   background: #1fe5ff;
 }
 
+/* 반응형: 작은 화면에서 히어로 텍스트와 버튼 간 간격 개선 */
+@media (max-width: 900px) {
+  .hero {
+    height: auto;
+    min-height: 60vh;
+    padding-top: 80px;
+    align-items: center; /* 중앙 유지 */
+  }
+
+  .hero-content h2 {
+    font-size: 40px; /* 기존 64px -> 축소 */
+  }
+
+  .hero-content p {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+
+  .btn-primary {
+    margin-top: 18px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content h2 {
+    font-size: 30px;
+  }
+}
+
 
 
 
