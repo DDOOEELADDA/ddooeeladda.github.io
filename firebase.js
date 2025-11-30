@@ -1,8 +1,4 @@
 // firebase.js
-import {
-  getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc
-} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
   authDomain: "hogboxing-35911.firebaseapp.com",
@@ -22,5 +18,6 @@ if (!firebase.apps.length) {
 // 전역 사용
 const auth = firebase.auth();
 const db = firebase.database();
+
 
 
