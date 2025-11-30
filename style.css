@@ -68,6 +68,7 @@
 }
 
 .hero-content {
+  margin-top: -120px;
   padding: 0 20px;
   margin: 0;              /* ← 음수 마진 제거 */
 }
@@ -516,6 +517,7 @@
   50%  { transform: translateY(8px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.6; }
 }
+
 
 
 
