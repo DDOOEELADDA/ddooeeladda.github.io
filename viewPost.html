@@ -5,73 +5,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>게시글 보기 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css" />
-
 </head>
+
 <body class="bg">
-  <header class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="logo">Hog Boxing</a>
-      <nav class="menu">
-        <a href="index.html">홈</a>
-        <a href="ranking.html">랭킹</a>
-        <a href="board.html">게시판</a>
-        <a href="login.html">로그인</a>
-      </nav>
-    </div>
-  </header>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
+  </div>
+</header>
 
-  <!-- Hero 제목 -->
-  <section class="hero small-hero">
-    <div class="hero-content">
-      <h1 class="hero-title">게시글 보기</h1>
-    </div>
-  </section>
+<section class="hero small-hero">
+  <div class="hero-content">
+    <h1 class="hero-title">게시글 보기</h1>
+  </div>
+</section>
 
-  <!-- 메인 본문 -->
-  <div class="post-container">
-
-    <!-- 글 내용 -->
-    <div class="post-card">
-      <h2 id="postTitle" class="post-title">제목 로딩중...</h2>
-      <div class="post-meta">
-        <span id="postAuthor">작성자</span> ·
-        <span id="postDate">0000-00-00</span>
-      </div>
-
-      <div class="post-content" id="postContent">
-        게시글을 불러오는 중입니다...
-      </div>
-
-      <div class="post-buttons">
-        <button onclick="location.href='board.html'" class="back-btn">목록으로</button>
-      </div>
+<div class="post-container">
+  <div class="post-card">
+    <h2 id="postTitle" class="post-title">제목 로딩중...</h2>
+    <div class="post-meta">
+      <span id="postAuthor">작성자</span> ·
+      <span id="postDate">0000-00-00</span>
     </div>
 
-    <!-- 댓글 -->
-    <div class="comment-card">
-      <h3>댓글</h3>
-
-      <div id="comment-list" class="comment-list">
-        <!-- script.js에서 자동으로 로드 -->
-      </div>
-
-      <div class="comment-input-box">
-        <textarea id="comment-input" placeholder="댓글을 입력해줘(로그인 시 닉네임 표시)." maxlength="500"></textarea>
-        <button class="comment-btn" onclick="submitComment()">댓글 작성</button>
-      </div>
+    <div class="post-content" id="postContent">
+      게시글을 불러오는 중입니다...
     </div>
 
+    <div class="post-buttons">
+      <button onclick="location.href='board.html'" class="back-btn">목록으로</button>
+    </div>
   </div>
 
-  <script src="firebase.js"></script>
-  <script src="script.js"></script>
+  <div class="comment-card">
+    <h3>댓글</h3>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      loadPostDetail();
-      loadComments();
+    <div id="comment-list" class="comment-list"></div>
+
+    <div class="comment-input-box">
+      <textarea id="comment-input" placeholder="댓글을 입력하세요." maxlength="500"></textarea>
+      <button class="comment-btn" onclick="submitComment()">댓글 작성</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+// -------------------------------
+// 게시글 불러오기
+// -------------------------------
+function loadPostDetail() {
+  const postId = new URLSearchParams(location.search).get("id");
+  firebase.database().ref("posts/" + postId).once("value").then(snapshot => {
+    const post = snapshot.val();
+    if (!post) return;
+
+    document.getElementById("postTitle").innerText = post.title;
+    document.getElementById("postAuthor").innerText = post.author;
+    document.getElementById("postDate").innerText = new Date(post.timestamp).toLocaleString();
+    document.getElementById("postContent").innerHTML = post.content;
+  });
+}
+
+// -------------------------------
+// 댓글 해시 생성 (IP 저장 없이 유사 ID 만들기)
+// -------------------------------
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+// -------------------------------
+// 댓글 불러오기
+// -------------------------------
+function loadComments() {
+  const postId = new URLSearchParams(location.search).get("id");
+  firebase.database().ref(`comments/${postId}`).on("value", snapshot => {
+    const box = document.getElementById("comment-list");
+    box.innerHTML = "";
+
+    snapshot.forEach(child => {
+      const data = child.val();
+
+      const div = document.createElement("div");
+      div.className = "comment-item";
+      div.innerHTML = `
+        <div class="comment-author">${data.author}</div>
+        <div class="comment-text">${data.text}</div>
+        <div class="comment-date">${new Date(data.timestamp).toLocaleString()}</div>
+      `;
+      box.appendChild(div);
     });
-  </script>
+  });
+}
+
+// -------------------------------
+// 댓글 작성
+// -------------------------------
+async function submitComment() {
+  const postId = new URLSearchParams(location.search).get("id");
+  const text = document.getElementById("comment-input").value.trim();
+  if (!text) return alert("댓글을 입력해주세요!");
+
+  const user = firebase.auth().currentUser;
+
+  let author;
+
+  if (user) {
+    author = user.displayName || "익명";
+  } else {
+    // 개인정보 보호: 실제 IP 저장 없이 fingerprint 생성
+    const fp = simpleHash(navigator.userAgent + screen.width + screen.height);
+    author = "Boxer-" + fp.toString().slice(-4);
+  }
+
+  const newComment = {
+    author,
+    text,
+    timestamp: Date.now()
+  };
+
+  await firebase.database().ref(`comments/${postId}`).push(newComment);
+
+  document.getElementById("comment-input").value = "";
+}
+  
+document.addEventListener("DOMContentLoaded", () => {
+  loadPostDetail();
+  loadComments();
+});
+</script>
 
 </body>
 </html>
