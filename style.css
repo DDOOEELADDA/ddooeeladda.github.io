@@ -67,7 +67,7 @@
 
 /* 기존 .hero-content { margin-top: -40px; } 를 아래로 교체 */
 .hero-content {
-  margin-top: 0;
+  margin-top: -60px;
   padding: 0 20px; /* 좌우 여백으로 모바일에서 꽉 차지 않게 함 */
 }
 
@@ -483,7 +483,7 @@
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute;
-  bottom: 20px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -514,6 +514,7 @@
   50%  { transform: translateY(8px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.6; }
 }
+
 
 
 
