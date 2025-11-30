@@ -19,7 +19,6 @@
     </div>
   </header>
 
-  <!-- 히어로 영역(섹션 제목) -->
   <section class="hero small-hero">
     <div class="hero-content">
       <h1 class="hero-title">커뮤니티 게시판</h1>
@@ -27,9 +26,7 @@
     </div>
   </section>
 
-  <!-- 게시판 영역 -->
   <div class="board-container">
-    <div id="post-list"></div>
     <div class="board-header">
       <h2>전체 글 목록</h2>
       <button class="write-btn" onclick="location.href='writePost.html'">글쓰기</button>
@@ -46,26 +43,88 @@
         </tr>
       </thead>
       <tbody id="postList">
-        <!-- script.js에서 자동으로 출력됨 -->
+        <!-- 게시글 목록이 여기에 렌더링됩니다 -->
       </tbody>
     </table>
 
-    <!-- 페이지네이션 -->
     <div class="pagination" id="pagination">
-      <!-- script.js에서 생성 -->
+      <!-- 페이지네이션 -->
     </div>
   </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="firebase.js"></script>
-<script src="script.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  loadPosts(); // 글 목록 로드
-});
+  const postsPerPage = 10; // 한 페이지에 표시할 글 수
+  let currentPage = 1;
+  let postsData = [];
+
+  function formatDate(timestamp) {
+    const d = new Date(timestamp);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ` +
+           `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  async function loadPosts() {
+    const snapshot = await firebase.database().ref("posts").orderByChild("timestamp").get();
+    postsData = [];
+
+    snapshot.forEach((childSnapshot) => {
+      postsData.push({ key: childSnapshot.key, ...childSnapshot.val() });
+    });
+
+    // 최신 글이 위로 오도록 정렬
+    postsData.sort((a, b) => b.timestamp - a.timestamp);
+
+    renderPosts();
+    renderPagination();
+  }
+
+  function renderPosts() {
+    const tbody = document.getElementById("postList");
+    tbody.innerHTML = "";
+
+    const start = (currentPage - 1) * postsPerPage;
+    const end = start + postsPerPage;
+    const pagePosts = postsData.slice(start, end);
+
+    pagePosts.forEach((post, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${start + index + 1}</td>
+        <td><a href="viewPost.html?id=${post.key}">${post.title}</a></td>
+        <td>${post.author}</td>
+        <td>${formatDate(post.timestamp)}</td>
+        <td>${post.views || 0}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderPagination() {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+
+    const totalPages = Math.ceil(postsData.length / postsPerPage);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = i === currentPage ? "active" : "";
+      btn.addEventListener("click", () => {
+        currentPage = i;
+        renderPosts();
+        renderPagination();
+      });
+      pagination.appendChild(btn);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadPosts);
 </script>
 
 </body>
 </html>
-
-
