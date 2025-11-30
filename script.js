@@ -1,3 +1,20 @@
+import {
+  db,
+} from "./firebase.js";
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  serverTimestamp,
+  query,
+  orderBy,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+
 // -----------------------------
 // 로그인 상태 표시
 // -----------------------------
@@ -34,207 +51,154 @@ function logout() {
 // 게시판 글 불러오기 (board.html)
 // ----------------------------------------------------------------
 
-let loadedPosts = [];
-let postsPerPage = 10;
-let currentPage = 1;
+async function loadPostList() {
+  const listEl = document.getElementById("post-list");
+  if (!listEl) return;
 
-function loadPosts() {
-  const ref = db.ref("posts");
+  const q = query(collection(db, "posts"), orderBy("date", "desc"));
+  const data = await getDocs(q);
 
-  ref.once("value", snapshot => {
-    loadedPosts = [];
+  listEl.innerHTML = ""; // 초기화
 
-    snapshot.forEach(child => {
-      loadedPosts.unshift({
-        id: child.key,
-        ...child.val()
-      });
-    });
+  data.forEach((docu) => {
+    const post = docu.data();
 
-    renderPage(1);
-  });
-}
-
-function renderPage(page) {
-  currentPage = page;
-
-  const list = document.getElementById("postList");
-  const pagination = document.getElementById("pagination");
-
-  if (!list) return; // board.html 아닐 때 대비
-
-  list.innerHTML = "";
-  pagination.innerHTML = "";
-
-  const start = (page - 1) * postsPerPage;
-  const end = start + postsPerPage;
-
-  const pagePosts = loadedPosts.slice(start, end);
-
-  pagePosts.forEach((post, i) => {
-    const tr = document.createElement("tr");
-    tr.onclick = () => location.href = `viewPost.html?id=${post.id}`;
-
-    tr.innerHTML = `
-      <td>${loadedPosts.length - (start + i)}</td>
-      <td>${post.title}</td>
-      <td>${post.author}</td>
-      <td>${post.date}</td>
-      <td>${post.views || 0}</td>
+    const item = document.createElement("div");
+    item.className = "post-item";
+    item.innerHTML = `
+      <a href="viewPost.html?id=${docu.id}">
+        <h2>${post.title}</h2>
+        <p>${post.author} · ${new Date(post.date.toDate()).toLocaleDateString()}</p>
+      </a>
     `;
-
-    list.appendChild(tr);
+    listEl.appendChild(item);
   });
-
-  const totalPages = Math.ceil(loadedPosts.length / postsPerPage);
-
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.innerText = i;
-
-    if (i === page) btn.classList.add("active");
-    btn.onclick = () => renderPage(i);
-
-    pagination.appendChild(btn);
-  }
 }
+loadPostList();
 
 
+/* ---------------------------------------------------
+    글쓰기 페이지(writePost.html)
+--------------------------------------------------- */
+const submitBtn = document.getElementById("postSubmit");
+if (submitBtn) {
+  submitBtn.addEventListener("click", async () => {
+    const title = document.getElementById("titleInput").value.trim();
+    const content = document.getElementById("contentInput").value.trim();
 
-// ----------------------------------------------------------------
-// 글 작성 (writePost.html)
-// ----------------------------------------------------------------
+    if (!title || !content) {
+      alert("제목과 내용을 입력해주세요!");
+      return;
+    }
 
-function submitPost() {
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
+    try {
+      await addDoc(collection(db, "posts"), {
+        title,
+        content,
+        author: localStorage.getItem("nickname") || "익명",
+        date: new Date(),
+      });
 
-  if (!title || !content) {
-    alert("제목과 내용을 모두 입력해줘!");
-    return;
-  }
-
-  let author = "Boxer(UnknownIP)";
-  const user = auth.currentUser;
-
-  if (user) {
-    author = user.displayName || user.email || "User";
-  }
-
-  const newPost = {
-    title,
-    content,
-    author,
-    date: new Date().toLocaleString("ko-KR"),
-    views: 0
-  };
-
-  db.ref("posts").push(newPost).then(() => {
-    alert("글이 등록되었어!");
-    location.href = "board.html";
+      alert("등록 완료!");
+      location.href = "board.html";
+    } catch (err) {
+      console.error("글쓰기 실패:", err);
+      alert("오류 발생");
+    }
   });
 }
 
 
 
-// ----------------------------------------------------------------
-// 글 보기 페이지(viewPost.html)
-// ----------------------------------------------------------------
+/* ---------------------------------------------------
+    게시글 상세(viewPost.html)
+--------------------------------------------------- */
+async function loadPostDetail() {
+  const titleEl = document.getElementById("postTitle");
+  const contentEl = document.getElementById("postContent");
+  const authorEl = document.getElementById("postAuthor");
+  const dateEl = document.getElementById("postDate");
 
-function loadPostDetail() {
   const params = new URLSearchParams(location.search);
   const postId = params.get("id");
-
-  const titleTag = document.getElementById("postTitle");
-  const contentTag = document.getElementById("postContent");
-  const authorTag = document.getElementById("postAuthor");
-  const dateTag = document.getElementById("postDate");
 
   if (!postId) return;
 
-  const ref = db.ref("posts/" + postId);
+  const docRef = doc(db, "posts", postId);
+  const docSnap = await getDoc(docRef);
 
-  ref.once("value").then(snapshot => {
-    const data = snapshot.val();
-
-    titleTag.innerText = data.title;
-    contentTag.innerText = data.content;
-    authorTag.innerText = data.author;
-    dateTag.innerText = data.date;
-
-    // 조회수 증가
-    ref.update({ views: (data.views || 0) + 1 });
-  });
-}
-
-
-
-// ----------------------------------------------------------------
-// 댓글 기능 (viewPost.html)
-// ----------------------------------------------------------------
-
-function submitComment() {
-  const params = new URLSearchParams(location.search);
-  const postId = params.get("id");
-
-  const input = document.getElementById("comment-input");
-  const comment = input.value.trim();
-
-  if (!comment) {
-    alert("댓글 내용을 입력해줘!");
+  if (!docSnap.exists()) {
+    titleEl.textContent = "글을 찾을 수 없습니다.";
     return;
   }
 
-  const user = auth.currentUser;
-  let author = "Boxer(UnknownIP)";
+  const post = docSnap.data();
 
-  if (user) author = user.displayName || user.email;
+  titleEl.textContent = post.title;
+  contentEl.textContent = post.content;
+  authorEl.textContent = post.author;
+  dateEl.textContent = new Date(post.date.toDate()).toLocaleString();
+}
 
-  db.ref(`comments/${postId}`).push({
-    comment,
-    author,
-    date: new Date().toLocaleString("ko-KR")
+
+/* ---------------------------------------------------
+    댓글 기능 (viewPost.html)
+--------------------------------------------------- */
+async function loadComments() {
+  const params = new URLSearchParams(location.search);
+  const postId = params.get("id");
+  if (!postId) return;
+
+  const list = document.getElementById("comment-list");
+
+  const q = query(
+    collection(db, "posts", postId, "comments"),
+    orderBy("date", "asc")
+  );
+  const data = await getDocs(q);
+
+  list.innerHTML = "";
+
+  data.forEach((docu) => {
+    const c = docu.data();
+
+    const div = document.createElement("div");
+    div.className = "comment-item";
+    div.innerHTML = `
+      <p class="comment-author">${c.author}</p>
+      <p class="comment-text">${c.text}</p>
+      <span class="comment-date">${new Date(c.date.toDate()).toLocaleString()}</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.loadComments = loadComments;
+
+/* 댓글 작성 */
+async function submitComment() {
+  const params = new URLSearchParams(location.search);
+  const postId = params.get("id");
+  const input = document.getElementById("comment-input");
+
+  if (!input.value.trim()) {
+    alert("댓글 내용을 입력해주세요.");
+    return;
+  }
+
+  await addDoc(collection(db, "posts", postId, "comments"), {
+    text: input.value.trim(),
+    author: localStorage.getItem("nickname") || "익명",
+    date: new Date(),
   });
 
   input.value = "";
   loadComments();
 }
 
-function loadComments() {
-  const params = new URLSearchParams(location.search);
-  const postId = params.get("id");
+window.submitComment = submitComment;
+window.loadPostDetail = loadPostDetail;
 
-  const container = document.getElementById("comment-list");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  db.ref(`comments/${postId}`).once("value", snap => {
-    snap.forEach(child => {
-      const c = child.val();
-
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `
-        <b>${c.author}</b> (${c.date})<br>
-        ${c.comment}
-        <hr>
-      `;
-
-      container.appendChild(div);
-    });
-  });
-
-  // AOS 초기화
-if (typeof AOS !== "undefined") {
-  AOS.init({
-    duration: 700,
-    once: true,
-    easing: 'ease-out-cubic'
-  });
-}
-
-}
 
 
 
