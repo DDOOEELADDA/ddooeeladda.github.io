@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 보기 - 호그 주먹전</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>게시글 보기 - 호그 주먹전</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body class="bg">
 
@@ -20,55 +21,25 @@
 </header>
 
 <div class="page-container">
-  <h1 class="page-title">게시글</h1>
-
-  <div id="postContainer" class="post-container">
-    <!-- 게시글 내용이 여기 표시됩니다 -->
-  </div>
-
+  <h1 class="page-title" id="postTitle"></h1>
+  <p id="postInfo"></p>
   <a href="board.html" class="btn-outline">목록으로 돌아가기</a>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="firebase.js"></script>
-
 <script>
-  // URL에서 post key 가져오기
+function getQueryParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
-  const postKey = urlParams.get("id");
+  return urlParams.get(param);
+}
 
-  function formatDate(timestamp) {
-    const d = new Date(timestamp);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ` +
-           `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  }
+document.addEventListener("DOMContentLoaded", ()=>{
+  const title = decodeURIComponent(getQueryParam("title") || "");
+  const author = decodeURIComponent(getQueryParam("author") || "");
+  const createdAt = decodeURIComponent(getQueryParam("createdAt") || "");
 
-  async function loadPost() {
-    if (!postKey) {
-      document.getElementById("postContainer").innerHTML = "<p>게시글을 찾을 수 없습니다.</p>";
-      return;
-    }
-
-    const snapshot = await firebase.database().ref("posts/" + postKey).get();
-
-    if (!snapshot.exists()) {
-      document.getElementById("postContainer").innerHTML = "<p>게시글이 존재하지 않습니다.</p>";
-      return;
-    }
-
-    const post = snapshot.val();
-
-    document.getElementById("postContainer").innerHTML = `
-      <h2 class="post-title">${post.title}</h2>
-      <p class="post-info">작성자: ${post.author} | 작성일: ${formatDate(post.timestamp)}</p>
-      <div class="post-content">${post.content}</div>
-    `;
-  }
-
-  loadPost();
+  document.getElementById("postTitle").textContent = title;
+  document.getElementById("postInfo").textContent = `작성자: ${author} | 작성일: ${createdAt}`;
+});
 </script>
-
 </body>
 </html>
