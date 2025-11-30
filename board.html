@@ -53,7 +53,6 @@ async function loadPosts() {
     posts.push({ key: child.key, ...child.val() });
   });
 
-  // 최신 글 위로 정렬
   posts.sort((a,b)=>a.createdAt < b.createdAt ? 1:-1);
 
   const tbody = document.getElementById("postList");
@@ -70,7 +69,6 @@ async function loadPosts() {
     `;
     tbody.appendChild(tr);
 
-    // 글 클릭 시 조회수 1 증가 + viewPost.html 이동
     tr.querySelector("a").addEventListener("click", async (e)=>{
       e.preventDefault();
       const postRef = firebase.database().ref("posts/" + post.key + "/views");
@@ -78,12 +76,9 @@ async function loadPosts() {
       const currentViews = snap.exists() ? snap.val() : 0;
       await postRef.set(currentViews + 1);
 
-      // 실시간 조회수 업데이트
       document.getElementById(`views-${post.key}`).textContent = currentViews + 1;
 
-      // viewPost.html로 이동 (query string 전달)
-      const url = `viewPost.html?title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author)}&createdAt=${encodeURIComponent(post.createdAt)}`;
-      window.location.href = url;
+      window.location.href = `viewPost.html?title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author)}&createdAt=${encodeURIComponent(post.createdAt)}&content=${encodeURIComponent(post.content)}`;
     });
   });
 }
