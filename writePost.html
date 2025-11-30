@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>글쓰기 - 호그 주먹전</title>
 <link rel="stylesheet" href="style.css">
@@ -43,32 +42,21 @@ function escapeHtml(text) {
              .replace(/'/g, "&#039;");
 }
 
-// IP 기반 작성자 가져오기
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    if (!res.ok) throw new Error("IP fetch failed");
-    const data = await res.json();
-    const ip = data.ip.replace(/\./g, "_");
-    return `Boxer_${ip}`;
-  } catch (err) {
-    console.warn("IP 가져오기 실패, 기본값 사용", err);
-    return "Boxer";
-  }
-}
-
 document.getElementById("postSubmit").addEventListener("click", async () => {
   try {
     const title = document.getElementById("titleInput").value.trim();
     const content = document.getElementById("contentInput").value.trim();
-    if (!title || !content) { alert("제목과 내용을 입력하세요"); return; }
+    if (!title || !content) {
+      alert("제목과 내용을 입력하세요");
+      return;
+    }
 
-    const author = await getUserIP();
+    const author = "Boxer"; // 작성자 고정
     const createdAt = new Date().toLocaleString("ko-KR", { hour12: true, timeZone: "Asia/Seoul" });
 
-    // Firebase 저장
-    const newPostKey = firebase.database().ref("posts").push().key;
-    await firebase.database().ref("posts/" + newPostKey).set({
+    // Firebase에 저장
+    const newPostKey = database.ref("posts").push().key;
+    await database.ref("posts/" + newPostKey).set({
       number: newPostKey,
       title: escapeHtml(title),
       content: escapeHtml(content).replace(/\n/g, "<br>"),
