@@ -1,5 +1,4 @@
-// firebase.js
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
   authDomain: "hogboxing-35911.firebaseapp.com",
   databaseURL: "https://hogboxing-35911-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -10,14 +9,8 @@ const firebaseConfig = {
   measurementId: "G-FJPPNS2QQN"
 };
 
-// Firebase 초기화 (v8 방식)
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
 
-// 전역 사용
-const auth = firebase.auth();
-const db = firebase.database();
-
-
-
+// Database 전역 객체 (편리하게 사용)
+var database = firebase.database();
