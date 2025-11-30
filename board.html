@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>호그주먹전 게시판</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>게시판 - 호그 주먹전</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <header class="nav">
+<body class="bg">
+
+<header class="nav">
   <div class="nav-inner">
     <a href="index.html" class="logo">Hog Boxing</a>
     <nav class="menu">
@@ -18,85 +18,25 @@
     </nav>
   </div>
 </header>
-  
-    <main>
-      <section class="board">
-        <table>
-          <thead>
-            <tr>
-              <th>작성자</th>
-              <th>제목</th>
-              <th>댓글 수</th>
-            </tr>
-          </thead>
-          <tbody id="post-list">
-            <!-- 게시글 목록 들어감 -->
-          </tbody>
-        </table>
-        <button onclick="goToWrite()">글쓰기</button>
-      </section>
-    </main>
 
-    <footer>
-      <button onclick="goToHome()">홈으로 돌아가기</button>
-      <p>&copy; 2025 ddooeeladda</p>
-    </footer>
-  </div>
+<div class="page-container">
+  <h1 class="page-title">게시판</h1>
 
-  <script>
-    function goToHome() {
-      window.location.href = "index.html";
-    }
+  <a href="writePost.html" class="btn-primary">글쓰기</a>
 
-    function goToWrite() {
-      window.location.href = "writePost.html";
-    }
-  </script>
+  <table class="table" style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+      </tr>
+    </thead>
+    <tbody id="postList">
+      <!-- JS 로드 -->
+    </tbody>
+  </table>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-      authDomain: "hogboxing-35911.firebaseapp.com",
-      projectId: "hogboxing-35911",
-      storageBucket: "hogboxing-35911.appspot.com",
-      messagingSenderId: "911173936135",
-      appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-      measurementId: "G-FJPPNS2QQN"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function loadPosts() {
-      const postListElement = document.getElementById('post-list');
-      postListElement.innerHTML = '';
-
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      const posts = [];
-
-      querySnapshot.forEach((doc) => {
-        posts.push({ id: doc.id, ...doc.data() });
-      });
-
-      // 최신 글이 위로 오게 정렬
-      posts.reverse();
-
-      posts.forEach(post => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${post.writer}</td>
-          <td><a href="viewPost.html?id=${post.id}">${post.title}</a></td>
-          <td>${post.comments ?? 0}</td>
-        `;
-        postListElement.appendChild(row);
-      });
-    }
-
-    window.addEventListener('DOMContentLoaded', loadPosts);
-  </script>
 </body>
 </html>
-
