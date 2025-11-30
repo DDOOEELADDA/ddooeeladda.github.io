@@ -2,41 +2,69 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시판 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg">
 
-<header class="nav">
-  <div class="nav-inner">
+<body>
+
+  <!-- 네비게이션 -->
+  <header class="navbar">
     <a href="index.html" class="logo">Hog Boxing</a>
-    <nav class="menu">
-      <a href="index.html">홈</a>
-      <a href="ranking.html">랭킹</a>
+    <nav>
       <a href="board.html">게시판</a>
-      <a href="login.html">로그인</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="login.html" id="loginLink">로그인</a>
+      <a href="signup.html" id="signupLink">회원가입</a>
+      <span id="userInfo" style="display:none;"></span>
     </nav>
+  </header>
+
+  <!-- 히어로 영역(섹션 제목) -->
+  <section class="hero small-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">커뮤니티 게시판</h1>
+      <p class="hero-subtitle">호그 주먹전 공식 포럼</p>
+    </div>
+  </section>
+
+  <!-- 게시판 영역 -->
+  <div class="board-container">
+    <div class="board-header">
+      <h2>전체 글 목록</h2>
+      <button class="write-btn" onclick="location.href='writePost.html'">글쓰기</button>
+    </div>
+
+    <table class="board-table">
+      <thead>
+        <tr>
+          <th style="width:60px;">번호</th>
+          <th>제목</th>
+          <th style="width:150px;">작성자</th>
+          <th style="width:130px;">작성일</th>
+          <th style="width:80px;">조회</th>
+        </tr>
+      </thead>
+      <tbody id="postList">
+        <!-- script.js에서 자동으로 출력됨 -->
+      </tbody>
+    </table>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" id="pagination">
+      <!-- script.js에서 생성 -->
+    </div>
   </div>
-</header>
 
-<div class="page-container">
-  <h1 class="page-title">게시판</h1>
+<script src="firebase.js"></script>
+<script src="script.js"></script>
 
-  <a href="writePost.html" class="btn-primary">글쓰기</a>
-
-  <table class="table" style="margin-top: 20px;">
-    <thead>
-      <tr>
-        <th>번호</th>
-        <th>제목</th>
-        <th>작성자</th>
-      </tr>
-    </thead>
-    <tbody id="postList">
-      <!-- JS 로드 -->
-    </tbody>
-  </table>
-</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  loadPosts(); // 글 목록 로드
+});
+</script>
 
 </body>
 </html>
