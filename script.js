@@ -228,5 +228,16 @@ function loadComments() {
       container.appendChild(div);
     });
   });
+
+  // AOS 초기화
+if (typeof AOS !== "undefined") {
+  AOS.init({
+    duration: 700,
+    once: true,
+    easing: 'ease-out-cubic'
+  });
 }
+
+}
+
 
