@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>회원가입</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="bg">
+    <body class="bg">
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Hog Boxing</a>
+      <nav class="menu">
+        <a href="index.html">홈</a>
+        <a href="ranking.html">랭킹</a>
+        <a href="board.html">게시판</a>
+        <a href="login.html">로그인</a>
+      </nav>
+    </div>
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="logo">Hog Boxing</a>
-    <nav class="menu">
-      <a href="index.html">홈</a>
-      <a href="ranking.html">랭킹</a>
-      <a href="board.html">게시판</a>
-      <a href="login.html">로그인</a>
-    </nav>
-  </div>
-</header>
+<div class="container">
+  <h1>회원가입</h1>
 
-<div class="page-container" style="max-width:500px;">
-  <h1 class="page-title">회원가입</h1>
+  <input id="email" type="email" placeholder="이메일" class="input"><br>
+  <input id="password" type="password" placeholder="비밀번호" class="input"><br>
 
-  <input class="input" id="email" placeholder="이메일">
-  <input class="input" id="nickname" placeholder="닉네임">
-  <input class="input" id="password" type="password" placeholder="비밀번호">
+  <button id="signupBtn" class="btn-primary">회원가입</button>
+  <br><br>
 
-  <button class="btn-primary" id="signupBtn">회원가입</button>
+  <!-- 원하는 경우: Google 회원가입/로그인 버튼 -->
+  <button id="googleSignupBtn" class="btn-outline">Google로 가입/로그인</button>
 
-  <hr style="border-color:#333; margin:25px 0;">
-
-  <button class="btn-outline" id="googleSignup">Google로 가입하기</button>
+  <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
 </div>
+
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+// 이메일 회원가입 + 자동로그인
+document.getElementById("signupBtn").onclick = async function () {
+  const email = document.getElementById("email").value.trim();
+  const pw = document.getElementById("password").value.trim();
+
+  if (!email || !pw) {
+    alert("이메일과 비밀번호를 입력하세요.");
+    return;
+  }
+
+  try {
+    // 회원가입
+    await firebase.auth().createUserWithEmailAndPassword(email, pw);
+
+    // 자동 로그인 (createUserWithEmailAndPassword가 자동으로 로그인 처리됨)
+    alert("회원가입 완료! 자동 로그인됩니다.");
+    location.href = "index.html";
+
+  } catch (err) {
+    alert("오류 발생: " + err.message);
+  }
+};
+
+
+// Google 회원가입/로그인
+document.getElementById("googleSignupBtn").onclick = function () {
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  firebase.auth().signInWithPopup(provider)
+    .then(() => {
+      alert("Google 로그인 성공!");
+      location.href = "index.html";
+    })
+    .catch(err => {
+      alert("Google 로그인 실패: " + err.message);
+    });
+};
+</script>
 
 </body>
 </html>
