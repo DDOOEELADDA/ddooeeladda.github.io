@@ -1,81 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>회원가입</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-    <body class="bg">
-  <header class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="logo">Hog Boxing</a>
-      <nav class="menu">
-        <a href="index.html">홈</a>
-        <a href="ranking.html">랭킹</a>
-        <a href="board.html">게시판</a>
-        <a href="login.html">로그인</a>
-      </nav>
-    </div>
+<body class="bg">
 
-<div class="container">
-  <h1>회원가입</h1>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+      <a href="login.html">로그인</a>
+    </nav>
+  </div>
+</header>
 
-  <input id="email" type="email" placeholder="이메일" class="input"><br>
-  <input id="password" type="password" placeholder="비밀번호" class="input"><br>
+<div class="page-container" style="max-width:500px;">
+  <h1 class="page-title">회원가입</h1>
 
-  <button id="signupBtn" class="btn-primary">회원가입</button>
-  <br><br>
+  <input class="input" id="email" placeholder="이메일">
+  <input class="input" id="nickname" placeholder="닉네임">
+  <input class="input" id="password" type="password" placeholder="비밀번호">
 
-  <!-- 원하는 경우: Google 회원가입/로그인 버튼 -->
-  <button id="googleSignupBtn" class="btn-outline">Google로 가입/로그인</button>
+  <button class="btn-primary" id="signupBtn">회원가입</button>
 
-  <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
+  <hr style="border-color:#333; margin:25px 0;">
+
+  <button class="btn-outline" id="googleSignup">Google로 가입하기</button>
 </div>
 
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase.js"></script>
 
 <script>
-// 이메일 회원가입 + 자동로그인
+// Firestore 선언
+const db = firebase.firestore();
+
+// 이메일 + 비밀번호 회원가입
 document.getElementById("signupBtn").onclick = async function () {
   const email = document.getElementById("email").value.trim();
+  const nickname = document.getElementById("nickname").value.trim();
   const pw = document.getElementById("password").value.trim();
 
-  if (!email || !pw) {
-    alert("이메일과 비밀번호를 입력하세요.");
+  if (!email || !nickname || !pw) {
+    alert("모든 필드를 입력하세요.");
     return;
   }
 
   try {
-    // 회원가입
-    await firebase.auth().createUserWithEmailAndPassword(email, pw);
+    // Firebase Auth 가입
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pw);
+    const user = userCredential.user;
 
-    // 자동 로그인 (createUserWithEmailAndPassword가 자동으로 로그인 처리됨)
+    // Firestore에 닉네임 저장 (users/{uid})
+    await db.collection("users").doc(user.uid).set({
+      email: email,
+      nickname: nickname,
+      createdAt: new Date()
+    });
+
     alert("회원가입 완료! 자동 로그인됩니다.");
     location.href = "index.html";
 
-  } catch (err) {
-    alert("오류 발생: " + err.message);
+  } catch (error) {
+    alert("회원가입 오류: " + error.message);
   }
 };
 
 
-// Google 회원가입/로그인
-document.getElementById("googleSignupBtn").onclick = function () {
+// Google 로그인/회원가입
+document.getElementById("googleSignup").onclick = async function () {
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  firebase.auth().signInWithPopup(provider)
-    .then(() => {
-      alert("Google 로그인 성공!");
-      location.href = "index.html";
-    })
-    .catch(err => {
-      alert("Google 로그인 실패: " + err.message);
-    });
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    const user = result.user;
+
+    // Firestore에 사용자 정보 없으면 생성
+    const userDoc = await db.collection("users").doc(user.uid).get();
+
+    if (!userDoc.exists) {
+      await db.collection("users").doc(user.uid).set({
+        email: user.email,
+        nickname: user.displayName || "GoogleUser",
+        createdAt: new Date()
+      });
+    }
+
+    alert("Google 로그인 성공!");
+    location.href = "index.html";
+
+  } catch (error) {
+    alert("Google 로그인 실패: " + error.message);
+  }
 };
 </script>
 
