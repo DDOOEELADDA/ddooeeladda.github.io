@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <title>회원가입</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
 </head>
+
 <body class="bg">
 
 <header class="nav">
@@ -33,75 +38,73 @@
   <button class="btn-outline" id="googleSignup">Google로 가입하기</button>
 </div>
 
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="firebase.js"></script>
-
 <script>
-// Firestore 선언
-const db = firebase.firestore();
+  // Firebase 설정
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+    authDomain: "hogboxing-35911.firebaseapp.com",
+    projectId: "hogboxing-35911",
+    storageBucket: "hogboxing-35911.appspot.com",
+    messagingSenderId: "911173936135",
+    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
+  };
 
-// 이메일 + 비밀번호 회원가입
-document.getElementById("signupBtn").onclick = async function () {
-  const email = document.getElementById("email").value.trim();
-  const nickname = document.getElementById("nickname").value.trim();
-  const pw = document.getElementById("password").value.trim();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-  if (!email || !nickname || !pw) {
-    alert("모든 필드를 입력하세요.");
-    return;
-  }
+  // 1) 회원가입 + 이메일 인증 링크 보내기
+  document.getElementById("signupBtn").onclick = async function () {
+    const email = document.getElementById("email").value.trim();
+    const nickname = document.getElementById("nickname").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-  try {
-    // Firebase Auth 가입
-    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pw);
-    const user = userCredential.user;
-
-    // Firestore에 닉네임 저장 (users/{uid})
-    await db.collection("users").doc(user.uid).set({
-      email: email,
-      nickname: nickname,
-      createdAt: new Date()
-    });
-
-    alert("회원가입 완료! 자동 로그인됩니다.");
-    location.href = "index.html";
-
-  } catch (error) {
-    alert("회원가입 오류: " + error.message);
-  }
-};
-
-
-// Google 로그인/회원가입
-document.getElementById("googleSignup").onclick = async function () {
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  try {
-    const result = await firebase.auth().signInWithPopup(provider);
-    const user = result.user;
-
-    // Firestore에 사용자 정보 없으면 생성
-    const userDoc = await db.collection("users").doc(user.uid).get();
-
-    if (!userDoc.exists) {
-      await db.collection("users").doc(user.uid).set({
-        email: user.email,
-        nickname: user.displayName || "GoogleUser",
-        createdAt: new Date()
-      });
+    if (!email || !nickname || !password) {
+      alert("입력란을 모두 채워주세요.");
+      return;
     }
 
-    alert("Google 로그인 성공!");
-    location.href = "index.html";
+    try {
+      // 계정 생성
+      await auth.createUserWithEmailAndPassword(email, password);
 
-  } catch (error) {
-    alert("Google 로그인 실패: " + error.message);
-  }
-};
+      // 닉네임 저장
+      await auth.currentUser.updateProfile({ displayName: nickname });
+
+      // 인증 메일 보내기
+      await auth.currentUser.sendEmailVerification();
+
+      alert("회원가입 완료! 이메일로 인증 링크가 전송되었습니다.\n인증 후 로그인해주세요.");
+
+      // 자동 로그아웃 → 인증 안 하면 로그인 금지
+      await auth.signOut();
+
+      window.location.href = "login.html";
+
+    } catch (error) {
+      console.error(error);
+      alert("오류: " + error.message);
+    }
+  };
+
+  // 2) Google 로그인
+  document.getElementById("googleSignup").onclick = function () {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+      .then(() => {
+        alert("Google 로그인 완료!");
+        window.location.href = "index.html";
+      })
+      .catch(err => alert(err.message));
+  };
+
+  // 3) 자동 로그인 감지 (이미 로그인되어있는 경우)
+  auth.onAuthStateChanged(user => {
+    if (user && user.emailVerified) {
+      // 이메일 인증된 사용자만 자동로그인 유지
+      console.log("자동로그인 유지됨");
+    }
+  });
 </script>
 
 </body>
