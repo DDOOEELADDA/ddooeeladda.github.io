@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <title>로그인</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
 </head>
+
 <body class="bg">
 
 <header class="nav">
@@ -19,7 +24,7 @@
   </div>
 </header>
 
-<div class="page-container" style="max-width:480px;">
+<div class="page-container" style="max-width:500px;">
   <h1 class="page-title">로그인</h1>
 
   <input class="input" id="email" placeholder="이메일">
@@ -27,14 +32,81 @@
 
   <button class="btn-primary" id="loginBtn">로그인</button>
 
+  <p style="margin-top:15px;">
+    아직 회원이 아니신가요?
+    <a href="signup.html">회원가입</a>
+  </p>
+
   <hr style="border-color:#333; margin:25px 0;">
 
-  <button class="btn-outline" id="googleLogin">Google 로그인</button>
-
-  <p style="margin-top:20px; color:#aaa;">
-    계정이 없다면? <a href="signup.html" style="color:#00d9ff;">회원가입</a>
-  </p>
+  <button class="btn-outline" id="googleLogin">Google로 로그인</button>
 </div>
+
+<script>
+  // Firebase 설정
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+    authDomain: "hogboxing-35911.firebaseapp.com",
+    projectId: "hogboxing-35911",
+    storageBucket: "hogboxing-35911.appspot.com",
+    messagingSenderId: "911173936135",
+    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // [1] 이메일 로그인
+  document.getElementById("loginBtn").onclick = async function () {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const result = await auth.signInWithEmailAndPassword(email, password);
+      const user = result.user;
+
+      // 이메일 인증 여부 확인
+      if (!user.emailVerified) {
+        await auth.signOut();
+        alert("이메일 인증 후 로그인할 수 있습니다.\n메일함을 확인해주세요!");
+        return;
+      }
+
+      alert("로그인 성공!");
+      window.location.href = "index.html";
+
+    } catch (error) {
+      console.error(error);
+      alert("로그인 오류: " + error.message);
+    }
+  };
+
+  // [2] Google 로그인
+  document.getElementById("googleLogin").onclick = function () {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+      .then(() => {
+        alert("Google 로그인 성공!");
+        window.location.href = "index.html";
+      })
+      .catch(err => alert("오류: " + err.message));
+  };
+
+  // [3] 자동 로그인 유지
+  auth.onAuthStateChanged(user => {
+    if (user && user.emailVerified) {
+      console.log("자동 로그인 유지됨:", user.email);
+      // 로그인 페이지가 필요 없으므로 바로 메인으로 이동시킬 수도 있음
+      // window.location.href = "index.html";
+    }
+  });
+</script>
 
 </body>
 </html>
