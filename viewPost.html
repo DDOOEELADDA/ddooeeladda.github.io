@@ -15,7 +15,15 @@
       <a href="index.html">홈</a>
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
-      <a href="login.html">로그인</a>
+    
+      <!-- 로그인 전 -->
+      <a href="login.html" id="loginMenu">로그인</a>
+    
+      <!-- 로그인 후 -->
+      <span id="userMenu" style="display:none;">
+        <span id="userName" style="margin-right:10px;"></span>
+        <a href="#" id="logoutBtn">로그아웃</a>
+      </span>
     </nav>
   </div>
 </header>
@@ -47,3 +55,4 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </body>
 </html>
+
