@@ -10,8 +10,11 @@ var firebaseConfig = {
 };
 
 // Firebase 초기화
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 // Database 전역 객체 (편리하게 사용)
 var database = firebase.database();
 var auth = firebase.auth();
+
