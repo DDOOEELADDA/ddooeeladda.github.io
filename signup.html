@@ -5,10 +5,13 @@
   <title>회원가입</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-  <script src="firebase.js"></script>
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<!-- Firebase 초기화 -->
+<script src="firebase.js"></script>
 </head>
 
 <body class="bg">
@@ -48,16 +51,6 @@
 </div>
 
 <script>
-var firebaseConfig = {
-  apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-  authDomain: "hogboxing-35911.firebaseapp.com",
-  databaseURL: "https://hogboxing-35911-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "hogboxing-35911",
-  storageBucket: "hogboxing-35911.firebasestorage.app",
-  messagingSenderId: "911173936135",
-  appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-  measurementId: "G-FJPPNS2QQN"
-};
   const auth = firebase.auth();
   let isSigningUp = false; // ⭐ 핵심 플래그
 
@@ -163,5 +156,6 @@ var firebaseConfig = {
 
 </body>
 </html>
+
 
 
