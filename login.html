@@ -50,9 +50,38 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  
 <script src="firebase.js"></script>
 
 <script>
+  /* ===============================
+      로그인된 사용자 접근 차단
+  =============================== */
+  auth.onAuthStateChanged(user => {
+    const loginMenu = document.getElementById("loginMenu");
+    const userMenu = document.getElementById("userMenu");
+    const userName = document.getElementById("userName");
+
+    if (user) {
+      // 상단 메뉴 표시
+      loginMenu.style.display = "none";
+      userMenu.style.display = "inline";
+      const name = user.displayName || user.email;
+      userName.textContent = `[${name}]`;
+
+      // 🔥 로그인 페이지 접근 차단
+      alert("이미 로그인된 상태입니다.");
+      location.replace("index.html");
+      return;
+    }
+
+    // 로그인 안 된 상태
+    loginMenu.style.display = "inline";
+    userMenu.style.display = "none";
+  });
+</script>
+
+  <script>
   // ✅ 이메일 로그인
   document.getElementById("loginBtn").onclick = function () {
     const email = document.getElementById("email").value.trim();
@@ -126,6 +155,7 @@
 
 </body>
 </html>
+
 
 
 
