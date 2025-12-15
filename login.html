@@ -118,7 +118,8 @@
     if (user) {
       loginMenu.style.display = "none";
       userMenu.style.display = "inline";
-      userName.textContent = user.displayName || user.email;
+      const name = user.displayName || user.email;
+      userName.textContent = `[${name}]`;
     } else {
       loginMenu.style.display = "inline";
       userMenu.style.display = "none";
@@ -139,3 +140,4 @@
 
 </body>
 </html>
+
