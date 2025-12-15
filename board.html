@@ -7,6 +7,52 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg">
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
+    authDomain: "hogboxing-35911.firebaseapp.com",
+    projectId: "hogboxing-35911",
+    storageBucket: "hogboxing-35911.appspot.com",
+    messagingSenderId: "911173936135",
+    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+
+  // 로그인 상태 감지
+  auth.onAuthStateChanged(user => {
+    const loginMenu = document.getElementById("loginMenu");
+    const userMenu = document.getElementById("userMenu");
+    const userName = document.getElementById("userName");
+
+    if (!loginMenu || !userMenu) return;
+
+    if (user) {
+      loginMenu.style.display = "none";
+      userMenu.style.display = "inline";
+
+      userName.textContent = user.displayName || user.email;
+    } else {
+      loginMenu.style.display = "inline";
+      userMenu.style.display = "none";
+    }
+  });
+
+  // 로그아웃
+  document.addEventListener("click", e => {
+    if (e.target.id === "logoutBtn") {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.href = "index.html";
+      });
+    }
+  });
+</script>
 
 <header class="nav">
   <div class="nav-inner">
@@ -49,6 +95,7 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="firebase.js"></script>
 
@@ -61,7 +108,9 @@ async function loadPosts() {
     posts.push({ key: child.key, ...child.val() });
   });
 
-  posts.sort((a,b)=>a.createdAt < b.createdAt ? 1:-1);
+  posts.sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
   const tbody = document.getElementById("postList");
   tbody.innerHTML = "";
@@ -95,4 +144,5 @@ document.addEventListener("DOMContentLoaded", loadPosts);
 </script>
 </body>
 </html>
+
 
