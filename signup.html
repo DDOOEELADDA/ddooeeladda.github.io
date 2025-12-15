@@ -5,7 +5,7 @@
   <title>회원가입</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase -->
+  <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
 </head>
@@ -19,13 +19,13 @@
       <a href="index.html">홈</a>
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
-    
+
       <!-- 로그인 전 -->
       <a href="login.html" id="loginMenu">로그인</a>
-    
+
       <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
-      <span id="userName" style="margin-left:15px; margin-right:1px;"></span>
+        <span id="userName" style="margin-left:15px; margin-right:1px;"></span>
         <a href="#" id="logoutBtn">로그아웃</a>
       </span>
     </nav>
@@ -57,65 +57,106 @@
     appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
   const auth = firebase.auth();
 
-  // 1) 회원가입 + 이메일 인증 링크 보내기
-  document.getElementById("signupBtn").onclick = async function () {
+  /* ===============================
+     0️⃣ 로그인된 사용자 접근 차단
+  =============================== */
+  auth.onAuthStateChanged(user => {
+    const loginMenu = document.getElementById("loginMenu");
+    const userMenu = document.getElementById("userMenu");
+    const userName = document.getElementById("userName");
+
+    if (user) {
+      // 상단 UI
+      loginMenu.style.display = "none";
+      userMenu.style.display = "inline";
+      userName.textContent = `[${user.displayName || user.email}]`;
+
+      // 이미 로그인 상태면 접근 차단
+      alert("이미 로그인되어 있습니다.");
+      window.location.replace("index.html");
+    } else {
+      loginMenu.style.display = "inline";
+      userMenu.style.display = "none";
+    }
+  });
+
+  /* ===============================
+     1️⃣ 이메일 회원가입
+  =============================== */
+  document.getElementById("signupBtn").onclick = async () => {
     const email = document.getElementById("email").value.trim();
     const nickname = document.getElementById("nickname").value.trim();
     const password = document.getElementById("password").value.trim();
 
     if (!email || !nickname || !password) {
-      alert("입력란을 모두 채워주세요.");
+      alert("모든 항목을 입력해주세요.");
       return;
     }
 
     try {
       // 계정 생성
-      await auth.createUserWithEmailAndPassword(email, password);
+      const result = await auth.createUserWithEmailAndPassword(email, password);
 
       // 닉네임 저장
-      await auth.currentUser.updateProfile({ displayName: nickname });
+      await result.user.updateProfile({
+        displayName: nickname
+      });
 
-      // 인증 메일 보내기
-      await auth.currentUser.sendEmailVerification();
+      // 이메일 인증 메일 전송
+      await result.user.sendEmailVerification();
 
-      alert("회원가입 완료! 이메일로 인증 링크가 전송되었습니다.\n인증 후 로그인해주세요.");
+      alert(
+        "회원가입이 완료되었습니다!\n\n" +
+        "이메일로 인증 링크가 전송되었습니다.\n" +
+        "인증 후 로그인해주세요."
+      );
 
-      // 자동 로그아웃 → 인증 안 하면 로그인 금지
+      // 인증 전에는 로그인 차단
       await auth.signOut();
-
       window.location.href = "login.html";
 
     } catch (error) {
       console.error(error);
-      alert("오류: " + error.message);
+      alert("회원가입 오류: " + error.message);
     }
   };
 
-  // 2) Google 로그인
-  document.getElementById("googleSignup").onclick = function () {
+  /* ===============================
+     2️⃣ Google 회원가입
+  =============================== */
+  document.getElementById("googleSignup").onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
 
     auth.signInWithPopup(provider)
       .then(() => {
-        alert("Google 로그인 완료!");
+        alert("Google 회원가입 완료!");
         window.location.href = "index.html";
       })
-      .catch(err => alert(err.message));
+      .catch(err => {
+        console.error(err);
+        alert("오류: " + err.message);
+      });
   };
 
-  // 3) 자동 로그인 감지 (이미 로그인되어있는 경우)
-  auth.onAuthStateChanged(user => {
-    if (user && user.emailVerified) {
-      // 이메일 인증된 사용자만 자동로그인 유지
-      console.log("자동로그인 유지됨");
+  /* ===============================
+     3️⃣ 로그아웃
+  =============================== */
+  document.addEventListener("click", e => {
+    if (e.target.id === "logoutBtn") {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      });
     }
   });
 </script>
 
 </body>
 </html>
-
-
