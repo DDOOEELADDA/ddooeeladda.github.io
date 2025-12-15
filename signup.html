@@ -48,20 +48,11 @@
 </div>
 
 <script>
-  // Firebase 설정
-  const firebaseConfig = {
-    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-    authDomain: "hogboxing-35911.firebaseapp.com",
-    projectId: "hogboxing-35911",
-    storageBucket: "hogboxing-35911.appspot.com",
-    messagingSenderId: "911173936135",
-    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
-  };
-
   const auth = firebase.auth();
+  let isSigningUp = false; // ⭐ 핵심 플래그
 
   /* ===============================
-     0️⃣ 로그인된 사용자 접근 차단
+     0️⃣ 로그인된 사용자 URL 직접 접근 차단
   =============================== */
   auth.onAuthStateChanged(user => {
     const loginMenu = document.getElementById("loginMenu");
@@ -69,14 +60,16 @@
     const userName = document.getElementById("userName");
 
     if (user) {
-      // 상단 UI
       loginMenu.style.display = "none";
       userMenu.style.display = "inline";
-      userName.textContent = `[${user.displayName || user.email}]`;
+      const name = user.displayName || user.email;
+      userName.textContent = `[${name}]`;
 
-      // 이미 로그인 상태면 접근 차단
-      alert("이미 로그인되어 있습니다.");
-      window.location.replace("index.html");
+      // 🔥 회원가입 중이 아닐 때만 차단
+      if (!isSigningUp) {
+        alert("이미 로그인된 상태에서는 회원가입할 수 없습니다.");
+        location.replace("index.html");
+      }
     } else {
       loginMenu.style.display = "inline";
       userMenu.style.display = "none";
@@ -87,39 +80,39 @@
      1️⃣ 이메일 회원가입
   =============================== */
   document.getElementById("signupBtn").onclick = async () => {
+    isSigningUp = true; // ⭐ 중요
+
     const email = document.getElementById("email").value.trim();
     const nickname = document.getElementById("nickname").value.trim();
     const password = document.getElementById("password").value.trim();
 
     if (!email || !nickname || !password) {
+      isSigningUp = false;
       alert("모든 항목을 입력해주세요.");
       return;
     }
 
     try {
-      // 계정 생성
       const result = await auth.createUserWithEmailAndPassword(email, password);
 
-      // 닉네임 저장
       await result.user.updateProfile({
         displayName: nickname
       });
 
-      // 이메일 인증 메일 전송
       await result.user.sendEmailVerification();
 
       alert(
-        "회원가입이 완료되었습니다!\n\n\n" +
-        "이메일로 인증 링크가 전송되었습니다.\n\n" +
-        "스팸 메일 확인 부탁드립니다.\n" +
+        "회원가입 완료!\n\n" +
+        "이메일로 인증 링크가 전송되었습니다.\n" +
         "인증 후 로그인해주세요."
       );
 
-      // 인증 전에는 로그인 차단
+      // 인증 전 로그인 방지
       await auth.signOut();
-      window.location.href = "login.html";
+      location.href = "login.html";
 
     } catch (error) {
+      isSigningUp = false;
       console.error(error);
       alert("회원가입 오류: " + error.message);
     }
@@ -128,18 +121,19 @@
   /* ===============================
      2️⃣ Google 회원가입
   =============================== */
-  document.getElementById("googleSignup").onclick = () => {
+  document.getElementById("googleSignup").onclick = async () => {
+    isSigningUp = true;
+
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    auth.signInWithPopup(provider)
-      .then(() => {
-        alert("Google 회원가입 완료!");
-        window.location.href = "index.html";
-      })
-      .catch(err => {
-        console.error(err);
-        alert("오류: " + err.message);
-      });
+    try {
+      await auth.signInWithPopup(provider);
+      alert("Google 회원가입 완료!");
+      location.href = "index.html";
+    } catch (e) {
+      isSigningUp = false;
+      alert("오류: " + e.message);
+    }
   };
 
   /* ===============================
@@ -158,5 +152,3 @@
 
 </body>
 </html>
-
-
