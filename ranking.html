@@ -5,25 +5,26 @@
   <title>랭킹 - 호그 주먹전</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg">
 
 <header class="nav">
   <div class="nav-inner">
     <a href="index.html" class="logo">Hog Boxing</a>
-      <nav class="menu">
-        <a href="index.html">홈</a>
-        <a href="ranking.html">랭킹</a>
-        <a href="board.html">게시판</a>
-      
-        <!-- 로그인 전 -->
-        <a href="login.html" id="loginMenu">로그인</a>
-      
-        <!-- 로그인 후 -->
-        <span id="userMenu" style="display:none;">
-          <span id="userName" style="margin-right:10px;"></span>
-          <a href="#" id="logoutBtn">로그아웃</a>
-        </span>
-      </nav>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+
+      <!-- 로그인 전 -->
+      <a href="login.html" id="loginMenu">로그인</a>
+
+      <!-- 로그인 후 -->
+      <span id="userMenu" style="display:none;">
+        <span id="userName" style="margin-right:10px;"></span>
+        <a href="#" id="logoutBtn">로그아웃</a>
+      </span>
+    </nav>
   </div>
 </header>
 
@@ -39,11 +40,49 @@
       </tr>
     </thead>
     <tbody>
-      <!-- JS 로드 -->
+      <!-- 추후 Firebase 랭킹 데이터 -->
     </tbody>
   </table>
 </div>
 
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<!-- Firebase 초기화 -->
+<script src="firebase.js"></script>
+
+<script>
+  // 로그인 상태 감지
+  auth.onAuthStateChanged(user => {
+    const loginMenu = document.getElementById("loginMenu");
+    const userMenu = document.getElementById("userMenu");
+    const userName = document.getElementById("userName");
+
+    if (!loginMenu || !userMenu) return;
+
+    if (user) {
+      loginMenu.style.display = "none";
+      userMenu.style.display = "inline";
+      userName.textContent = user.displayName || user.email;
+    } else {
+      loginMenu.style.display = "inline";
+      userMenu.style.display = "none";
+    }
+  });
+
+  // 로그아웃
+  document.addEventListener("click", e => {
+    if (e.target.id === "logoutBtn") {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
-
