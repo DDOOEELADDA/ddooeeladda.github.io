@@ -4,98 +4,114 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>호그 주먹전 - 공식 홈</title>
+
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
-  <body class="bg">
-  <header class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="logo">Hog Boxing</a>
-      <nav class="menu">
-        <a href="index.html">홈</a>
-        <a href="ranking.html">랭킹</a>
-        <a href="board.html">게시판</a>
 
-        <!-- 로그인 전 -->
-        <a href="login.html" id="loginMenu">로그인</a>
+<body class="bg">
 
-        <!-- 로그인 후 -->
-        <span id="userMenu" style="display:none;">
-          <span id="userName" style="margin-right:10px;"></span>
-          <a href="#" id="logoutBtn">로그아웃</a>
-        </span>
-      </nav>
-    </div>
-  </header>
-  <section class="hero">
-    <div class="hero-content" data-aos="fade-up" data-aos-delay="100">
-      <h2>호그 주먹전</h2>
-      <p>오버워치 최고의 전투 워크샵 · 공식 커뮤니티</p>
-      <a href="board.html" class="btn-primary">게시판 바로가기</a>
-    </div>
-        <div class="scroll-indicator">
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Hog Boxing</a>
+    <nav class="menu">
+      <a href="index.html">홈</a>
+      <a href="ranking.html">랭킹</a>
+      <a href="board.html">게시판</a>
+
+      <!-- 로그인 전 -->
+      <a href="login.html" id="loginMenu">로그인</a>
+
+      <!-- 로그인 후 -->
+      <span id="userMenu" style="display:none;">
+        <span id="userName" style="margin-right:10px;"></span>
+        <a href="#" id="logoutBtn">로그아웃</a>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-content" data-aos="fade-up" data-aos-delay="100">
+    <h2>호그 주먹전</h2>
+    <p>오버워치 최고의 전투 워크샵 · 공식 커뮤니티</p>
+    <a href="board.html" class="btn-primary">게시판 바로가기</a>
+  </div>
+
+  <div class="scroll-indicator">
     <span>↓</span>
     <span>↓</span>
     <span>↓</span>
-    </div>
-  </section>
+  </div>
+</section>
 
-  <section class="cards">
-    <div class="card" data-aos="fade-up" data-aos-delay="150">
-      <h3>랭킹 시스템</h3>
-      <p>랭커들의 실시간 랭전 결과를 반영하는 랭킹 기능.</p>
-      <a href="ranking.html" class="btn-outline">확인하기</a>
-    </div>
+<section class="cards">
+  <div class="card" data-aos="fade-up" data-aos-delay="150">
+    <h3>랭킹 시스템</h3>
+    <p>랭커들의 실시간 랭전 결과를 반영하는 랭킹 기능.</p>
+    <a href="ranking.html" class="btn-outline">확인하기</a>
+  </div>
 
-    <div class="card" data-aos="fade-up" data-aos-delay="250">
-      <h3>게시판</h3>
-      <p>다른 플레이어들과 소통하고 정보를 공유해보세요.</p>
-      <a href="board.html" class="btn-outline">바로가기</a>
-    </div>
+  <div class="card" data-aos="fade-up" data-aos-delay="250">
+    <h3>게시판</h3>
+    <p>다른 플레이어들과 소통하고 정보를 공유해보세요.</p>
+    <a href="board.html" class="btn-outline">바로가기</a>
+  </div>
 
-    <div class="card" data-aos="fade-up" data-aos-delay="350">
-      <h3>로그인 / 회원가입</h3>
-      <p>소셜 로그인 + 계정 생성 기능을 이용할 수 있습니다.</p>
-      <a href="login.html" class="btn-outline">시작하기</a>
-    </div>
-  </section>
+  <div class="card" data-aos="fade-up" data-aos-delay="350">
+    <h3>로그인 / 회원가입</h3>
+    <p>소셜 로그인 + 계정 생성 기능을 이용할 수 있습니다.</p>
+    <a href="login.html" class="btn-outline">시작하기</a>
+  </div>
+</section>
 
-  <footer class="footer">
-    <p>© 2025 Hog Boxing. All rights reserved.</p>
-  </footer>
-  <!-- Firebase v8 CDN (script.js가 v8 스타일 사용) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<footer class="footer">
+  <p>© 2025 Hog Boxing. All rights reserved.</p>
+</footer>
 
-  <!-- 초기화 파일 (위에서 만든 firebase.js) -->
-  <script src="firebase.js"></script>
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- AOS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<!-- Firebase 초기화 -->
+<script src="firebase.js"></script>
 
-  <!-- 기존 스크립트 (site js) -->
-  <script src="script.js"></script>
-    
-  <script>
-    AOS.init();
-  </script>
+<!-- AOS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+<script>
+  AOS.init();
+
+  // 로그인 상태 감지
+  auth.onAuthStateChanged(user => {
+    const loginMenu = document.getElementById("loginMenu");
+    const userMenu = document.getElementById("userMenu");
+    const userName = document.getElementById("userName");
+
+    if (!loginMenu || !userMenu) return;
+
+    if (user) {
+      loginMenu.style.display = "none";
+      userMenu.style.display = "inline";
+      userName.textContent = user.displayName || user.email;
+    } else {
+      loginMenu.style.display = "inline";
+      userMenu.style.display = "none";
+    }
+  });
+
+  // 로그아웃
+  document.addEventListener("click", e => {
+    if (e.target.id === "logoutBtn") {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      });
+    }
+  });
+</script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
