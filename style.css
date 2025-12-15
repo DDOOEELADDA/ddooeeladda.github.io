@@ -519,6 +519,54 @@
   100% { transform: translateY(0); opacity: 0.6; }
 }
 
+/* Contact 버튼 */
+.contact-wrapper {
+  position: absolute;
+  top: 90px; /* 헤더보다 살짝 아래 */
+  left: 20px;
+  z-index: 1000;
+}
+
+.contact-btn {
+  position: relative;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #aaa;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.contact-btn:hover {
+  color: #fff;
+  border-color: #666;
+}
+
+/* hover 시 이메일 표시 */
+.contact-email {
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background: #111;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  opacity: 0;
+  transform: translateY(-5px);
+  pointer-events: none;
+  transition: 0.2s;
+}
+
+.contact-btn:hover .contact-email {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 
 
