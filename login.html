@@ -49,6 +49,7 @@
 <!-- Firebase v8 (통일) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="firebase.js"></script>
 
 <script>
   // Firebase 설정
@@ -60,10 +61,6 @@
     messagingSenderId: "911173936135",
     appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2"
   };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
 
   const auth = firebase.auth();
 
@@ -140,6 +137,7 @@
 
 </body>
 </html>
+
 
 
 
