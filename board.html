@@ -70,7 +70,8 @@ firebase.auth().onAuthStateChanged(user => {
   if (user) {
     loginMenu.style.display = "none";
     userMenu.style.display = "inline";
-    userName.textContent = user.displayName || user.email;
+    const name = user.displayName || user.email;
+    userName.textContent = `[${name}]`;
     writeBtn.onclick = () => location.href = "writePost.html";
   } else {
     loginMenu.style.display = "inline";
@@ -143,4 +144,5 @@ document.addEventListener("DOMContentLoaded", loadPosts);
 
 </body>
 </html>
+
 
