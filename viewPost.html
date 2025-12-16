@@ -221,7 +221,7 @@ document.getElementById("commentSubmit").onclick = async () => {
     btn.disabled = false;
     return alert("댓글을 입력하세요.");
   }
-
+  
   await commentRef.push({
     content,
     author: currentUser.displayName || currentUser.email,
@@ -230,15 +230,12 @@ document.getElementById("commentSubmit").onclick = async () => {
   });
 
   input.value = "";
+
+  // 🔥 새 댓글 작성 후 마지막 페이지로 이동
+  currentPage = Math.ceil((allComments.length + 1) / COMMENTS_PER_PAGE);
+
   btn.disabled = false;
 };
-
-await commentRef.push({
-  content,
-  author: currentUser.displayName || currentUser.email,
-  authorUid: currentUser.uid,
-  createdAt: new Date().toLocaleString()
-});
 
 
 async function deleteComment(commentId) {
@@ -341,6 +338,7 @@ function renderPagination() {
 
 </body>
 </html>
+
 
 
 
