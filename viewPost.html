@@ -138,41 +138,6 @@ postRef.once("value").then(snapshot => {
 
   updateDeleteButton();
 });
-  
-commentRef.on("value", snapshot => {
-  const list = document.getElementById("commentList");
-  list.innerHTML = "";
-
-  if (!snapshot.exists()) return;
-
-  snapshot.forEach(child => {
-    const c = child.val();
-    const commentId = child.key;
-
-    const div = document.createElement("div");
-    div.className = "comment";
-
-    let deleteBtn = "";
-    if (currentUser && c.authorUid === currentUser.uid) {
-      deleteBtn = `
-        <button class="comment-btn"
-                style="margin-top:5px; width:auto; padding:5px 10px;"
-                onclick="deleteComment('${commentId}')">
-          삭제
-        </button>
-      `;
-    }
-
-    div.innerHTML = `
-      <strong>${c.author}</strong>
-      <p>${c.content}</p>
-      <small>${c.createdAt}</small>
-      ${deleteBtn}
-    `;
-
-    list.appendChild(div);
-  });
-});
 
 
 /* ===============================
@@ -338,6 +303,7 @@ function renderPagination() {
 
 </body>
 </html>
+
 
 
 
