@@ -22,7 +22,7 @@
 
       <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
-      <span id="userName" style="margin-left:15px; margin-right:1px;"></span>
+        <span id="userName" style="margin-left:15px; margin-right:5px;"></span>
         <a href="#" id="logoutBtn">로그아웃</a>
       </span>
     </nav>
@@ -34,11 +34,16 @@
   <!-- 배틀태그 등록 -->
   <div id="battleTagSection" style="display:none;">
     <h1 class="page-title">배틀태그 등록</h1>
-    <p>공식 매치 참여를 위해 <strong>오버워치2 배틀태그</strong>를 등록해야 합니다.</p>
+    <p>
+      공식 매치 참여를 위해<br>
+      <strong>오버워치2 배틀태그</strong>를 등록해야 합니다.
+    </p>
 
-    <input id="battleTagInput"
-           placeholder="닉네임#1234"
-           style="margin-top:15px; width:250px; padding:10px;" />
+    <input
+      id="battleTagInput"
+      placeholder="닉네임#1234"
+      style="margin-top:15px; width:250px; padding:10px;"
+    />
 
     <br><br>
     <button id="saveBattleTag" class="btn-outline">등록</button>
@@ -67,6 +72,9 @@
 let currentUser = null;
 let myBattleTag = null;
 
+/* =========================
+   로그인 체크
+========================= */
 firebase.auth().onAuthStateChanged(async user => {
   if (!user) {
     alert("로그인이 필요합니다.");
@@ -75,8 +83,11 @@ firebase.auth().onAuthStateChanged(async user => {
   }
 
   currentUser = user;
+
+  document.getElementById("loginMenu").style.display = "none";
   document.getElementById("userMenu").style.display = "inline";
-  document.getElementById("userName").textContent = `[${user.email}]`;
+  document.getElementById("userName").textContent =
+    `[${user.displayName || user.email}]`;
 
   const snap = await firebase.database()
     .ref("users/" + user.uid + "/battleTag")
@@ -90,43 +101,55 @@ firebase.auth().onAuthStateChanged(async user => {
   }
 });
 
-// 로그아웃
+/* =========================
+   로그아웃
+========================= */
 document.getElementById("logoutBtn").onclick = e => {
   e.preventDefault();
   firebase.auth().signOut().then(() => location.reload());
 };
 
-// 배틀태그 저장
+/* =========================
+   배틀태그 저장 (🔥 핵심 수정)
+========================= */
 document.getElementById("saveBattleTag").onclick = async () => {
   const input = document.getElementById("battleTagInput");
   const tag = input.value.trim();
 
   if (!/^.{3,12}#[0-9]{4,6}$/.test(tag)) {
-    alert("배틀태그 형식이 올바르지 않습니다.");
+    alert("배틀태그 형식이 올바르지 않습니다. (닉네임#1234)");
     return;
   }
 
   try {
-    await firebase.database().ref("users/" + currentUser.uid).set({
-      battleTag: tag,
-      createdAt: new Date().toISOString()
-    });
+    const userRef = firebase.database().ref("users/" + currentUser.uid);
+
+    // 🔥 Rules에 맞게 child 단위로 저장
+    await userRef.child("battleTag").set(tag);
+    await userRef.child("createdAt").set(new Date().toISOString());
 
     myBattleTag = tag;
     showMatchmaking();
+
   } catch (e) {
     alert("배틀태그 등록 실패");
     console.error(e);
   }
 };
 
+/* =========================
+   매치메이킹 화면 표시
+========================= */
 function showMatchmaking() {
   document.getElementById("battleTagSection").style.display = "none";
   document.getElementById("matchmakingSection").style.display = "block";
-  document.getElementById("myBattleTag").textContent = `내 배틀태그: ${myBattleTag}`;
+  document.getElementById("myBattleTag").textContent =
+    `내 배틀태그: ${myBattleTag}`;
 }
 
-// 매치 찾기 (서버 API 연결 예정)
+/* =========================
+   매치 찾기 (서버 연동 예정)
+========================= */
 document.getElementById("findMatchBtn").onclick = () => {
   document.getElementById("matchStatus").innerHTML = `
     <p>매치메이킹 대기 중...</p>
