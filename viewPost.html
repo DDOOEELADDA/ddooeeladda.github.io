@@ -17,10 +17,8 @@
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
 
-      <!-- 로그인 전 -->
       <a href="login.html" id="loginMenu">로그인</a>
 
-      <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
         <span id="userName" style="margin-right:10px;"></span>
         <a href="#" id="logoutBtn">로그아웃</a>
@@ -30,47 +28,54 @@
 </header>
 
 <div class="page-container">
-  <h1 class="page-title" id="postTitle"></h1>
+  <h1 class="page-title" id="postTitle">불러오는 중...</h1>
   <p id="postInfo"></p>
 
-  <div id="postContent" style="margin-top:20px;"></div>
+  <div id="postContent" style="margin-top:20px; white-space:pre-wrap;"></div>
 
-  <!-- 글 삭제 -->
-  <button id="deletePostBtn" class="btn-outline" style="display:none; margin-top:20px;">
+  <button id="deletePostBtn" class="btn-outline"
+    style="display:none; margin-top:20px;">
     글 삭제
   </button>
 
   <hr style="margin:40px 0; border-color:#333;">
 
-  <!-- 댓글 -->
   <h3>댓글</h3>
   <div id="commentList"></div>
 
   <!-- 댓글 작성 -->
   <div id="commentForm" style="display:none; margin-top:20px;">
-    <textarea id="commentInput" class="textarea" placeholder="댓글을 입력하세요"></textarea>
+    <textarea
+      id="commentInput"
+      class="textarea"
+      placeholder="댓글을 입력하세요"
+      style="min-height:80px; resize:vertical;"
+    ></textarea>
     <button id="commentSubmit" class="btn-primary">댓글 등록</button>
   </div>
 
-  <a href="board.html" class="btn-outline" style="margin-top:30px;">목록으로 돌아가기</a>
+  <a href="board.html" class="btn-outline" style="margin-top:30px;">
+    목록으로 돌아가기
+  </a>
 </div>
 
 <!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script src="firebase.js"></script>
 
 <script>
 /* ===============================
    유틸
 ================================ */
-function getQueryParam(name) {
-  return new URLSearchParams(window.location.search).get(name);
+const postId = new URLSearchParams(location.search).get("id");
+
+if (!postId) {
+  alert("잘못된 접근입니다.");
+  location.replace("board.html");
 }
 
-const postId = getQueryParam("id");
 const postRef = firebase.database().ref("posts/" + postId);
 const commentRef = firebase.database().ref("comments/" + postId);
 
@@ -99,7 +104,7 @@ firebase.auth().onAuthStateChanged(user => {
     commentForm.style.display = "none";
   }
 
-  checkDeletePermission();
+  updateDeleteButton();
 });
 
 /* ===============================
@@ -113,12 +118,12 @@ document.addEventListener("click", e => {
 });
 
 /* ===============================
-   게시글 로드 + 조회수 증가
+   게시글 로드
 ================================ */
-postRef.once("value").then(snapshot => {
+postRef.get().then(snapshot => {
   if (!snapshot.exists()) {
     alert("존재하지 않는 게시글입니다.");
-    location.href = "board.html";
+    location.replace("board.html");
     return;
   }
 
@@ -128,18 +133,17 @@ postRef.once("value").then(snapshot => {
   document.getElementById("postTitle").textContent = post.title;
   document.getElementById("postInfo").textContent =
     `작성자: ${post.author} | 작성일: ${post.createdAt}`;
-  document.getElementById("postContent").innerHTML = post.content;
+  document.getElementById("postContent").textContent = post.content;
 
-  // 조회수 증가
   postRef.child("views").transaction(v => (v || 0) + 1);
 
-  checkDeletePermission();
+  updateDeleteButton();
 });
 
 /* ===============================
-   글 삭제 (본인만)
+   삭제 버튼 제어
 ================================ */
-function checkDeletePermission() {
+function updateDeleteButton() {
   const btn = document.getElementById("deletePostBtn");
 
   if (currentUser && postAuthorUid && currentUser.uid === postAuthorUid) {
@@ -153,10 +157,10 @@ document.getElementById("deletePostBtn").onclick = async () => {
   if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
 
   await postRef.remove();
-  await firebase.database().ref("comments/" + postId).remove();
+  await commentRef.remove();
 
   alert("게시글이 삭제되었습니다.");
-  location.href = "board.html";
+  location.replace("board.html");
 };
 
 /* ===============================
@@ -168,34 +172,42 @@ commentRef.on("value", snapshot => {
 
   snapshot.forEach(child => {
     const c = child.val();
+
     const div = document.createElement("div");
     div.style.marginBottom = "15px";
-    div.innerHTML = `
-      <strong>${c.author}</strong>
-      <p>${c.content}</p>
-      <small>${c.createdAt}</small>
-      <hr style="border-color:#333;">
-    `;
+
+    const author = document.createElement("strong");
+    author.textContent = c.author;
+
+    const content = document.createElement("p");
+    content.textContent = c.content;
+
+    const date = document.createElement("small");
+    date.textContent = c.createdAt;
+
+    div.append(author, content, date, document.createElement("hr"));
     list.appendChild(div);
   });
 });
 
 /* ===============================
-   댓글 작성 (로그인 필수)
+   댓글 작성
 ================================ */
 document.getElementById("commentSubmit").onclick = async () => {
-  const content = document.getElementById("commentInput").value.trim();
+  if (!currentUser) return;
+
+  const input = document.getElementById("commentInput");
+  const content = input.value.trim();
   if (!content) return alert("댓글을 입력하세요.");
 
-  const commentData = {
+  await commentRef.push({
     content,
     author: currentUser.displayName || currentUser.email,
     authorUid: currentUser.uid,
     createdAt: new Date().toLocaleString()
-  };
+  });
 
-  await commentRef.push(commentData);
-  document.getElementById("commentInput").value = "";
+  input.value = "";
 };
 </script>
 
