@@ -49,7 +49,7 @@
       id="commentInput"
       class="textarea"
       placeholder="댓글을 입력하세요"
-      style="width:33%; min-width:250px;"
+      style="width:100%; max-width:400px; height:100px;"
     ></textarea>
     <button id="commentSubmit" class="btn-primary">댓글 등록</button>
   </div>
@@ -120,6 +120,24 @@ document.addEventListener("click", e => {
 /* ===============================
    게시글 로드
 ================================ */
+postRef.once("value").then(snapshot => {
+  if (!snapshot.exists()) {
+    alert("존재하지 않는 게시글입니다.");
+    location.replace("board.html");
+    return;
+  }
+
+  const post = snapshot.val();
+  postAuthorUid = post.authorUid;
+
+  document.getElementById("postTitle").textContent = post.title;
+  document.getElementById("postInfo").textContent =
+    `작성자: ${post.author} | 작성일: ${post.createdAt}`;
+  document.getElementById("postContent").innerHTML = post.content;
+
+  updateDeleteButton();
+});
+  
 commentRef.on("value", snapshot => {
   const list = document.getElementById("commentList");
   list.innerHTML = "";
@@ -171,39 +189,16 @@ function updateDeleteButton() {
 document.getElementById("deletePostBtn").onclick = async () => {
   if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
 
-  await postRef.remove();
-  await commentRef.remove();
-
-  alert("게시글이 삭제되었습니다.");
-  location.replace("board.html");
+  try {
+    await postRef.remove();
+    await commentRef.remove();
+    location.replace("board.html");
+  } catch (e) {
+    alert("게시글 삭제 실패");
+    console.error(e);
+  }
 };
 
-/* ===============================
-   댓글 로드
-================================ */
-commentRef.on("value", snapshot => {
-  const list = document.getElementById("commentList");
-  list.innerHTML = "";
-
-  snapshot.forEach(child => {
-    const c = child.val();
-
-    const div = document.createElement("div");
-    div.style.marginBottom = "15px";
-
-    const author = document.createElement("strong");
-    author.textContent = c.author;
-
-    const content = document.createElement("p");
-    content.textContent = c.content;
-
-    const date = document.createElement("small");
-    date.textContent = c.createdAt;
-
-    div.append(author, content, date, document.createElement("hr"));
-    list.appendChild(div);
-  });
-});
 
 /* ===============================
    댓글 작성
@@ -211,9 +206,15 @@ commentRef.on("value", snapshot => {
 document.getElementById("commentSubmit").onclick = async () => {
   if (!currentUser) return;
 
+  const btn = document.getElementById("commentSubmit");
+  btn.disabled = true;
+
   const input = document.getElementById("commentInput");
   const content = input.value.trim();
-  if (!content) return alert("댓글을 입력하세요.");
+  if (!content) {
+    btn.disabled = false;
+    return alert("댓글을 입력하세요.");
+  }
 
   await commentRef.push({
     content,
@@ -223,6 +224,7 @@ document.getElementById("commentSubmit").onclick = async () => {
   });
 
   input.value = "";
+  btn.disabled = false;
 };
 
 async function deleteComment(commentId) {
@@ -240,5 +242,6 @@ async function deleteComment(commentId) {
 
 </body>
 </html>
+
 
 
