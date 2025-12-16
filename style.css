@@ -572,6 +572,31 @@ a:hover {
   text-decoration: none;
 }
 
+/* 네비 매치메이킹 강조 버튼 */
+.menu-match {
+  margin: 0 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff7a18, #ff9f1a);
+  color: #111 !important;
+  font-weight: 700;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.35);
+  transition: all 0.25s ease;
+}
+
+/* hover */
+.menu-match:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 140, 0, 0.5);
+  background: linear-gradient(135deg, #ff8c1a, #ffb347);
+}
+
+/* 클릭감 */
+.menu-match:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(255, 140, 0, 0.35);
+}
+
 
 
 
