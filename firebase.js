@@ -15,6 +15,7 @@ if (!firebase.apps.length) {
 }
 
 // Database 전역 객체 (편리하게 사용)
-var database = firebase.database();
 var auth = firebase.auth();
+var database = firebase.database();
+
 
