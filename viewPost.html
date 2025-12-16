@@ -271,7 +271,6 @@ function renderComments() {
   });
 }
 
-// 페이지 버튼 렌더링
 function renderPagination() {
   const pagination = document.getElementById("commentPagination");
   pagination.innerHTML = "";
@@ -286,23 +285,35 @@ function renderPagination() {
     btn.style.margin = "0 5px";
 
     if (i === currentPage) {
-      btn.style.opacity = "0.6";
+      // ✅ 선택된 페이지 (밝게)
+      btn.style.background = "rgba(0, 207, 255, 0.25)";
+      btn.style.borderColor = "#00cfff";
+      btn.style.color = "#00e5ff";
+      btn.style.boxShadow = "0 0 10px rgba(0, 207, 255, 0.6)";
+      btn.style.cursor = "default";
+    } else {
+      // 🌑 나머지 페이지 (어둡게)
+      btn.style.opacity = "0.45";
+      btn.onmouseenter = () => btn.style.opacity = "0.8";
+      btn.onmouseleave = () => btn.style.opacity = "0.45";
     }
 
     btn.onclick = () => {
+      if (i === currentPage) return;
       currentPage = i;
       renderComments();
+      renderPagination();
     };
 
     pagination.appendChild(btn);
   }
 }
-
   
 </script>
 
 </body>
 </html>
+
 
 
 
