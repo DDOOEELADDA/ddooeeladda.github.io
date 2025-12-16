@@ -40,26 +40,20 @@
 
   <hr style="margin:40px 0; border-color:#333;">
 
+<div class="comment-card">
   <h3>댓글</h3>
-  <div id="commentList"></div>
+
+  <div id="commentList" class="comment-list"></div>
+
+  <!-- 페이지 버튼 -->
+  <div id="commentPagination" style="margin-top:15px; text-align:center;"></div>
 
   <!-- 댓글 작성 -->
-  <div class="comment-card">
-    <h3>댓글</h3>
-  
-    <div id="commentList" class="comment-list"></div>
-  
-    <!-- 댓글 작성 -->
-    <div id="commentForm" class="comment-input-box" style="display:none;">
-      <textarea
-        id="comment-input"
-        placeholder="댓글을 입력하세요"
-      ></textarea>
-      <button id="commentSubmit" class="comment-btn">
-        댓글 등록
-      </button>
-    </div>
+  <div id="commentForm" class="comment-input-box" style="display:none;">
+    <textarea id="comment-input" placeholder="댓글을 입력하세요"></textarea>
+    <button id="commentSubmit" class="comment-btn">댓글 등록</button>
   </div>
+</div>
 
   <a href="board.html" class="btn-outline" style="margin-top:30px;">
     목록으로 돌아가기
@@ -250,10 +244,105 @@ async function deleteComment(commentId) {
   }
 }
 
+
+const COMMENTS_PER_PAGE = 5;
+let currentPage = 1;
+let allComments = [];
+
+// 댓글 불러오기 (실시간)
+commentRef.on("value", snapshot => {
+  allComments = [];
+
+  if (snapshot.exists()) {
+    snapshot.forEach(child => {
+      allComments.push({
+        id: child.key,
+        ...child.val()
+      });
+    });
+  }
+
+  renderComments();
+  renderPagination();
+});
+
+// 댓글 렌더링
+function renderComments() {
+  const list = document.getElementById("commentList");
+  list.innerHTML = "";
+
+  const start = (currentPage - 1) * COMMENTS_PER_PAGE;
+  const end = start + COMMENTS_PER_PAGE;
+  const pageComments = allComments.slice(start, end);
+
+  pageComments.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "comment";
+
+    let deleteBtn = "";
+    if (currentUser && c.authorUid === currentUser.uid) {
+      deleteBtn = `
+        <button class="comment-btn"
+                style="margin-top:5px; width:auto; padding:5px 10px;"
+                onclick="deleteComment('${c.id}')">
+          삭제
+        </button>
+      `;
+    }
+
+    div.innerHTML = `
+      <strong>${c.author}</strong>
+      <p>${c.content}</p>
+      <small>${c.createdAt}</small>
+      ${deleteBtn}
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// 페이지 버튼 렌더링
+function renderPagination() {
+  const pagination = document.getElementById("commentPagination");
+  pagination.innerHTML = "";
+
+  const totalPages = Math.ceil(allComments.length / COMMENTS_PER_PAGE);
+  if (totalPages <= 1) return;
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.className = "btn-outline";
+    btn.style.margin = "0 5px";
+
+    if (i === currentPage) {
+      btn.style.opacity = "0.6";
+    }
+
+    btn.onclick = () => {
+      currentPage = i;
+      renderComments();
+    };
+
+    pagination.appendChild(btn);
+  }
+}
+
+await commentRef.push({
+  content,
+  author: currentUser.displayName || currentUser.email,
+  authorUid: currentUser.uid,
+  createdAt: new Date().toLocaleString()
+});
+
+// 🔥 최신 페이지로 이동
+currentPage = Math.ceil((allComments.length + 1) / COMMENTS_PER_PAGE);
+  
 </script>
 
 </body>
 </html>
+
 
 
 
