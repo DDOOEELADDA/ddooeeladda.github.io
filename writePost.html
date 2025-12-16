@@ -6,6 +6,7 @@
 <title>글쓰기 - 호그 주먹전</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg">
 
 <header class="nav">
@@ -15,10 +16,10 @@
       <a href="index.html">홈</a>
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
-    
+
       <!-- 로그인 전 -->
       <a href="login.html" id="loginMenu">로그인</a>
-    
+
       <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
         <span id="userName" style="margin-right:10px;"></span>
@@ -30,65 +31,97 @@
 
 <div class="page-container">
   <h1 class="page-title">글쓰기</h1>
+
   <input class="input" id="titleInput" placeholder="제목을 입력하세요">
   <textarea class="textarea" id="contentInput" placeholder="내용을 입력하세요"></textarea>
+
   <button class="btn-primary" id="postSubmit">등록하기</button>
   <a href="board.html" class="btn-outline" style="margin-left:20px;">취소</a>
 </div>
 
-<!-- Firebase SDK (Firestore compat) -->
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<!-- Firebase 초기화 -->
+<script src="firebase.js"></script>
 
 <script>
-  // Firebase 설정
-  const firebaseConfig = {
-    apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
-    authDomain: "hogboxing-35911.firebaseapp.com",
-    projectId: "hogboxing-35911",
-    storageBucket: "hogboxing-35911.appspot.com",
-    messagingSenderId: "911173936135",
-    appId: "1:911173936135:web:a34c9c81ab4ce23645f6a2",
-    measurementId: "G-FJPPNS2QQN"
-  };
+let currentUser = null;
 
-  // Firebase 초기화
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+/* ===============================
+   로그인 상태 감지 + 메뉴 처리
+================================ */
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
 
-  // 글 작성 함수
-  function postSubmit() {
-    const title = document.getElementById('title').value.trim();
-    const content = document.getElementById('content').value.trim();
+  const loginMenu = document.getElementById("loginMenu");
+  const userMenu = document.getElementById("userMenu");
+  const userName = document.getElementById("userName");
 
-    if (!title || !content) {
-      alert("제목과 내용을 입력해주세요!");
-      return;
-    }
+  if (user) {
+    loginMenu.style.display = "none";
+    userMenu.style.display = "inline";
+    userName.textContent = `[${user.displayName || user.email}]`;
+  } else {
+    loginMenu.style.display = "inline";
+    userMenu.style.display = "none";
+  }
+});
 
-    db.collection("posts").add({
-      writer: "Boxer",        // 작성자 고정
-      title: title,
-      content: content,
-      comments: 0,
-      createdAt: new Date()
-    })
-    .then(() => {
-      alert("글 작성 완료!");
-      window.location.href = "board.html";
-    })
-    .catch((error) => {
-      console.error("글 작성 실패", error);
-      alert("글 작성 중 오류가 발생했습니다.");
+/* ===============================
+   로그아웃
+================================ */
+document.addEventListener("click", e => {
+  if (e.target.id === "logoutBtn") {
+    e.preventDefault();
+    firebase.auth().signOut().then(() => {
+      location.reload();
     });
   }
+});
 
-  // 홈으로 돌아가기
-  function goToHome() {
-    window.location.href = "index.html";
+/* ===============================
+   글 등록
+================================ */
+document.getElementById("postSubmit").onclick = async () => {
+  const title = document.getElementById("titleInput").value.trim();
+  const content = document.getElementById("contentInput").value.trim();
+
+  if (!title || !content) {
+    alert("제목과 내용을 모두 입력해주세요.");
+    return;
   }
+
+  // 🔥 작성자 정보
+  let author = "Boxer";
+  let authorUid = null;
+
+  if (currentUser) {
+    author = currentUser.displayName || currentUser.email;
+    authorUid = currentUser.uid;
+  }
+
+  const postData = {
+    title,
+    content,
+    author,
+    authorUid,          // ⭐ 삭제 권한 판별용
+    createdAt: new Date().toLocaleString(),
+    views: 0
+  };
+
+  try {
+    await firebase.database().ref("posts").push(postData);
+    alert("글이 등록되었습니다!");
+    location.href = "board.html";
+  } catch (e) {
+    console.error(e);
+    alert("글 등록 중 오류가 발생했습니다.");
+  }
+};
 </script>
+
 </body>
 </html>
-
-
