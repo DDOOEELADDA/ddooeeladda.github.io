@@ -44,14 +44,21 @@
   <div id="commentList"></div>
 
   <!-- 댓글 작성 -->
-  <div id="commentForm" style="display:none; margin-top:20px;">
-    <textarea
-      id="commentInput"
-      class="textarea"
-      placeholder="댓글을 입력하세요"
-      style="width:100%; max-width:400px; height:100px;"
-    ></textarea>
-    <button id="commentSubmit" class="btn-primary">댓글 등록</button>
+  <div class="comment-card">
+    <h3>댓글</h3>
+  
+    <div id="commentList" class="comment-list"></div>
+  
+    <!-- 댓글 작성 -->
+    <div id="commentForm" class="comment-input-box" style="display:none;">
+      <textarea
+        id="comment-input"
+        placeholder="댓글을 입력하세요"
+      ></textarea>
+      <button id="commentSubmit" class="comment-btn">
+        댓글 등록
+      </button>
+    </div>
   </div>
 
   <a href="board.html" class="btn-outline" style="margin-top:30px;">
@@ -142,18 +149,20 @@ commentRef.on("value", snapshot => {
   const list = document.getElementById("commentList");
   list.innerHTML = "";
 
+  if (!snapshot.exists()) return;
+
   snapshot.forEach(child => {
     const c = child.val();
     const commentId = child.key;
 
     const div = document.createElement("div");
-    div.style.marginBottom = "15px";
+    div.className = "comment";
 
     let deleteBtn = "";
     if (currentUser && c.authorUid === currentUser.uid) {
       deleteBtn = `
-        <button class="btn-outline"
-                style="font-size:12px; margin-top:5px;"
+        <button class="comment-btn"
+                style="margin-top:5px; width:auto; padding:5px 10px;"
                 onclick="deleteComment('${commentId}')">
           삭제
         </button>
@@ -165,7 +174,6 @@ commentRef.on("value", snapshot => {
       <p>${c.content}</p>
       <small>${c.createdAt}</small>
       ${deleteBtn}
-      <hr style="border-color:#333;">
     `;
 
     list.appendChild(div);
@@ -209,7 +217,7 @@ document.getElementById("commentSubmit").onclick = async () => {
   const btn = document.getElementById("commentSubmit");
   btn.disabled = true;
 
-  const input = document.getElementById("commentInput");
+  const input = document.getElementById("comment-input");
   const content = input.value.trim();
   if (!content) {
     btn.disabled = false;
@@ -242,6 +250,7 @@ async function deleteComment(commentId) {
 
 </body>
 </html>
+
 
 
 
