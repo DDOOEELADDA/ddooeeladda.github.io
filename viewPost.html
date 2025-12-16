@@ -198,8 +198,16 @@ document.getElementById("deletePostBtn").onclick = async () => {
   if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
 
   try {
+    commentRef.off();
+
+    // 게시물만 삭제
     await postRef.remove();
-    await commentRef.remove();
+
+    // 작성자가 로그인 유저인 경우만 댓글 삭제
+    if (postAuthorUid && currentUser && currentUser.uid === postAuthorUid) {
+      await commentRef.remove();
+    }
+
     location.replace("board.html");
   } catch (e) {
     alert("게시글 삭제 실패");
@@ -250,6 +258,7 @@ async function deleteComment(commentId) {
 
 </body>
 </html>
+
 
 
 
