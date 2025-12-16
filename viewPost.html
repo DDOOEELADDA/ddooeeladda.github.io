@@ -233,6 +233,14 @@ document.getElementById("commentSubmit").onclick = async () => {
   btn.disabled = false;
 };
 
+await commentRef.push({
+  content,
+  author: currentUser.displayName || currentUser.email,
+  authorUid: currentUser.uid,
+  createdAt: new Date().toLocaleString()
+});
+
+
 async function deleteComment(commentId) {
   if (!confirm("이 댓글을 삭제하시겠습니까?")) return;
 
@@ -328,20 +336,12 @@ function renderPagination() {
   }
 }
 
-await commentRef.push({
-  content,
-  author: currentUser.displayName || currentUser.email,
-  authorUid: currentUser.uid,
-  createdAt: new Date().toLocaleString()
-});
-
-// 🔥 최신 페이지로 이동
-currentPage = Math.ceil((allComments.length + 1) / COMMENTS_PER_PAGE);
   
 </script>
 
 </body>
 </html>
+
 
 
 
