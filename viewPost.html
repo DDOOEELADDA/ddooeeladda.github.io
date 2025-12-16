@@ -6,6 +6,7 @@
 <title>게시글 보기 - 호그 주먹전</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg">
 
 <header class="nav">
@@ -15,10 +16,10 @@
       <a href="index.html">홈</a>
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
-    
+
       <!-- 로그인 전 -->
       <a href="login.html" id="loginMenu">로그인</a>
-    
+
       <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
         <span id="userName" style="margin-right:10px;"></span>
@@ -31,28 +32,172 @@
 <div class="page-container">
   <h1 class="page-title" id="postTitle"></h1>
   <p id="postInfo"></p>
+
   <div id="postContent" style="margin-top:20px;"></div>
-  <a href="board.html" class="btn-outline">목록으로 돌아가기</a>
+
+  <!-- 글 삭제 -->
+  <button id="deletePostBtn" class="btn-outline" style="display:none; margin-top:20px;">
+    글 삭제
+  </button>
+
+  <hr style="margin:40px 0; border-color:#333;">
+
+  <!-- 댓글 -->
+  <h3>댓글</h3>
+  <div id="commentList"></div>
+
+  <!-- 댓글 작성 -->
+  <div id="commentForm" style="display:none; margin-top:20px;">
+    <textarea id="commentInput" class="textarea" placeholder="댓글을 입력하세요"></textarea>
+    <button id="commentSubmit" class="btn-primary">댓글 등록</button>
+  </div>
+
+  <a href="board.html" class="btn-outline" style="margin-top:30px;">목록으로 돌아가기</a>
 </div>
 
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script src="firebase.js"></script>
+
 <script>
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
+/* ===============================
+   유틸
+================================ */
+function getQueryParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
 }
 
-document.addEventListener("DOMContentLoaded", ()=>{
-  const title = decodeURIComponent(getQueryParam("title") || "");
-  const author = decodeURIComponent(getQueryParam("author") || "");
-  const createdAt = decodeURIComponent(getQueryParam("createdAt") || "");
-  const content = decodeURIComponent(getQueryParam("content") || "");
+const postId = getQueryParam("id");
+const postRef = firebase.database().ref("posts/" + postId);
+const commentRef = firebase.database().ref("comments/" + postId);
 
-  document.getElementById("postTitle").textContent = title;
-  document.getElementById("postInfo").textContent = `작성자: ${author} | 작성일: ${createdAt}`;
-  document.getElementById("postContent").innerHTML = content;
+let currentUser = null;
+let postAuthorUid = null;
+
+/* ===============================
+   로그인 상태
+================================ */
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+
+  const loginMenu = document.getElementById("loginMenu");
+  const userMenu = document.getElementById("userMenu");
+  const userName = document.getElementById("userName");
+  const commentForm = document.getElementById("commentForm");
+
+  if (user) {
+    loginMenu.style.display = "none";
+    userMenu.style.display = "inline";
+    userName.textContent = `[${user.displayName || user.email}]`;
+    commentForm.style.display = "block";
+  } else {
+    loginMenu.style.display = "inline";
+    userMenu.style.display = "none";
+    commentForm.style.display = "none";
+  }
+
+  checkDeletePermission();
 });
+
+/* ===============================
+   로그아웃
+================================ */
+document.addEventListener("click", e => {
+  if (e.target.id === "logoutBtn") {
+    e.preventDefault();
+    firebase.auth().signOut().then(() => location.reload());
+  }
+});
+
+/* ===============================
+   게시글 로드 + 조회수 증가
+================================ */
+postRef.once("value").then(snapshot => {
+  if (!snapshot.exists()) {
+    alert("존재하지 않는 게시글입니다.");
+    location.href = "board.html";
+    return;
+  }
+
+  const post = snapshot.val();
+  postAuthorUid = post.authorUid || null;
+
+  document.getElementById("postTitle").textContent = post.title;
+  document.getElementById("postInfo").textContent =
+    `작성자: ${post.author} | 작성일: ${post.createdAt}`;
+  document.getElementById("postContent").innerHTML = post.content;
+
+  // 조회수 증가
+  postRef.child("views").transaction(v => (v || 0) + 1);
+
+  checkDeletePermission();
+});
+
+/* ===============================
+   글 삭제 (본인만)
+================================ */
+function checkDeletePermission() {
+  const btn = document.getElementById("deletePostBtn");
+
+  if (currentUser && postAuthorUid && currentUser.uid === postAuthorUid) {
+    btn.style.display = "inline-block";
+  } else {
+    btn.style.display = "none";
+  }
+}
+
+document.getElementById("deletePostBtn").onclick = async () => {
+  if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
+
+  await postRef.remove();
+  await firebase.database().ref("comments/" + postId).remove();
+
+  alert("게시글이 삭제되었습니다.");
+  location.href = "board.html";
+};
+
+/* ===============================
+   댓글 로드
+================================ */
+commentRef.on("value", snapshot => {
+  const list = document.getElementById("commentList");
+  list.innerHTML = "";
+
+  snapshot.forEach(child => {
+    const c = child.val();
+    const div = document.createElement("div");
+    div.style.marginBottom = "15px";
+    div.innerHTML = `
+      <strong>${c.author}</strong>
+      <p>${c.content}</p>
+      <small>${c.createdAt}</small>
+      <hr style="border-color:#333;">
+    `;
+    list.appendChild(div);
+  });
+});
+
+/* ===============================
+   댓글 작성 (로그인 필수)
+================================ */
+document.getElementById("commentSubmit").onclick = async () => {
+  const content = document.getElementById("commentInput").value.trim();
+  if (!content) return alert("댓글을 입력하세요.");
+
+  const commentData = {
+    content,
+    author: currentUser.displayName || currentUser.email,
+    authorUid: currentUser.uid,
+    createdAt: new Date().toLocaleString()
+  };
+
+  await commentRef.push(commentData);
+  document.getElementById("commentInput").value = "";
+};
 </script>
 
 </body>
 </html>
-
