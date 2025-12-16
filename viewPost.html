@@ -198,15 +198,11 @@ document.getElementById("deletePostBtn").onclick = async () => {
   if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
 
   try {
+    // 🔥 댓글 리스너만 끊고
     commentRef.off();
 
-    // 게시물만 삭제
+    // 🔥 게시물만 삭제
     await postRef.remove();
-
-    // 작성자가 로그인 유저인 경우만 댓글 삭제
-    if (postAuthorUid && currentUser && currentUser.uid === postAuthorUid) {
-      await commentRef.remove();
-    }
 
     location.replace("board.html");
   } catch (e) {
@@ -258,6 +254,7 @@ async function deleteComment(commentId) {
 
 </body>
 </html>
+
 
 
 
