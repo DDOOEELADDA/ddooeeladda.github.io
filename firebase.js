@@ -1,7 +1,7 @@
 var firebaseConfig = {
   apiKey: "AIzaSyA0nV1kSuJFiMDM9WV2vDAqGiXp6jPcsm4",
   authDomain: "hogboxing-35911.firebaseapp.com",
-  databaseURL: "https://hogboxing-35911-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL: "https://hogboxing-35911-default-rtdb.firebaseio.com",
   projectId: "hogboxing-35911",
   storageBucket: "hogboxing-35911.firebasestorage.app",
   messagingSenderId: "911173936135",
@@ -17,5 +17,6 @@ if (!firebase.apps.length) {
 // Database 전역 객체 (편리하게 사용)
 var auth = firebase.auth();
 var database = firebase.database();
+
 
 
