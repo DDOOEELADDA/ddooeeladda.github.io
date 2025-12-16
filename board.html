@@ -147,7 +147,7 @@ async function loadPosts() {
       const snap = await viewRef.get();
       await viewRef.set((snap.val() || 0) + 1);
 
-      location.href = `viewPost.html?postKey=${post.key}`;
+      location.href = `viewPost.html?id=${post.key}`;
     };
 
     // 🔥 삭제 버튼 이벤트
@@ -169,3 +169,4 @@ async function loadPosts() {
 
 </body>
 </html>
+
