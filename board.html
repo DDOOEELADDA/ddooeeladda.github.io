@@ -22,7 +22,7 @@
 
       <!-- 로그인 후 -->
       <span id="userMenu" style="display:none;">
-      <span id="userName" style="margin-left:15px; margin-right:1px;"></span>
+        <span id="userName" style="margin-left:15px; margin-right:1px;"></span>
         <a href="#" id="logoutBtn">로그아웃</a>
       </span>
     </nav>
@@ -43,44 +43,42 @@
         <th style="width:150px;">작성자</th>
         <th style="width:150px;">작성일</th>
         <th style="width:80px;">조회</th>
+        <th style="width:90px;">관리</th>
       </tr>
     </thead>
     <tbody id="postList"></tbody>
   </table>
 </div>
 
-<!-- Firebase SDK (v8 고정) -->
+<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- Firebase 설정 -->
 <script src="firebase.js"></script>
 
 <script>
+let currentUser = null;
+
 /* ===============================
-   로그인 상태 감지 + 메뉴 처리
+   로그인 상태 감지
 ================================ */
 firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+
   const loginMenu = document.getElementById("loginMenu");
   const userMenu = document.getElementById("userMenu");
   const userName = document.getElementById("userName");
-  const writeBtn = document.getElementById("writeBtn");
 
   if (user) {
     loginMenu.style.display = "none";
     userMenu.style.display = "inline";
-    const name = user.displayName || user.email;
-    userName.textContent = `[${name}]`;
-    writeBtn.onclick = () => location.href = "writePost.html";
+    userName.textContent = `[${user.displayName || user.email}]`;
   } else {
     loginMenu.style.display = "inline";
     userMenu.style.display = "none";
-    writeBtn.onclick = () => {
-      alert("로그인 후 글쓰기가 가능합니다.");
-      location.href = "login.html";
-    };
   }
+
+  loadPosts();
 });
 
 /* ===============================
@@ -90,59 +88,84 @@ document.addEventListener("click", e => {
   if (e.target.id === "logoutBtn") {
     e.preventDefault();
     firebase.auth().signOut().then(() => {
-      location.href = "index.html";
+      location.reload();
     });
   }
 });
 
 /* ===============================
-   게시글 로드
+   글쓰기 (로그인 상관 없음)
+================================ */
+document.getElementById("writeBtn").onclick = () => {
+  location.href = "writePost.html";
+};
+
+/* ===============================
+   게시글 불러오기
 ================================ */
 async function loadPosts() {
-  const snapshot = await firebase.database().ref("posts").get();
-  const posts = [];
+  const tbody = document.getElementById("postList");
+  tbody.innerHTML = "";
 
+  const snapshot = await firebase.database().ref("posts").get();
+  if (!snapshot.exists()) return;
+
+  const posts = [];
   snapshot.forEach(child => {
     posts.push({ key: child.key, ...child.val() });
   });
 
   posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const tbody = document.getElementById("postList");
-  tbody.innerHTML = "";
-
   posts.forEach((post, index) => {
     const tr = document.createElement("tr");
+
+    // 🔥 삭제 버튼 조건
+    let deleteBtn = "";
+    if (
+      currentUser &&
+      post.authorUid &&
+      post.authorUid === currentUser.uid
+    ) {
+      deleteBtn = `<button class="btn-outline btn-small" data-key="${post.key}">삭제</button>`;
+    }
+
     tr.innerHTML = `
       <td>${index + 1}</td>
-      <td><a href="#">${post.title}</a></td>
+      <td><a href="#" class="post-link">${post.title}</a></td>
       <td>${post.author}</td>
       <td>${post.createdAt}</td>
-      <td id="views-${post.key}">${post.views || 0}</td>
+      <td>${post.views || 0}</td>
+      <td>${deleteBtn}</td>
     `;
-    tbody.appendChild(tr);
 
-    tr.querySelector("a").addEventListener("click", async e => {
+    // 조회수 증가 + 글 보기
+    tr.querySelector(".post-link").onclick = async e => {
       e.preventDefault();
 
       const viewRef = firebase.database().ref("posts/" + post.key + "/views");
       const snap = await viewRef.get();
-      const views = snap.exists() ? snap.val() : 0;
-      await viewRef.set(views + 1);
+      await viewRef.set((snap.val() || 0) + 1);
 
-      location.href =
-        `viewPost.html?title=${encodeURIComponent(post.title)}` +
-        `&author=${encodeURIComponent(post.author)}` +
-        `&createdAt=${encodeURIComponent(post.createdAt)}` +
-        `&content=${encodeURIComponent(post.content)}`;
-    });
+      location.href = `viewPost.html?postKey=${post.key}`;
+    };
+
+    // 🔥 삭제 버튼 이벤트
+    const btn = tr.querySelector("button");
+    if (btn) {
+      btn.onclick = async () => {
+        if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
+
+        await firebase.database().ref("posts/" + post.key).remove();
+        alert("삭제되었습니다.");
+        loadPosts();
+      };
+    }
+
+    tbody.appendChild(tr);
   });
 }
-
-document.addEventListener("DOMContentLoaded", loadPosts);
 </script>
 
 </body>
 </html>
-
-
