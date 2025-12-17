@@ -156,27 +156,35 @@ function showMatchmaking() {
 /* =========================
    매치 찾기 (서버 연동 예정)
 ========================= */
-document.getElementById("findMatchBtn").onclick = () => {
-  document.getElementById("matchStatus").innerHTML = `
-    <p>매치메이킹 대기 중...</p>
-    <p style="opacity:0.7;">상대 플레이어를 찾고 있습니다.</p>
-  `;
+document.getElementById("findMatchBtn").onclick = async () => {
+  document.getElementById("matchStatus").innerHTML =
+    "<p>매치메이킹 대기 중...</p>";
+
+  try {
+    const res = await fetch(
+      "https://https://hogboxing-fucntions.vercel.app/api/match-find",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          battleTag: myBattleTag
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.result === "no matches") {
+      document.getElementById("matchStatus").innerHTML =
+        "<p>상대 찾는 중...</p>";
+    }
+
+  } catch (e) {
+    alert("매치 서버 오류");
+    console.error(e);
+  }
 };
-
-function watchMyMatch() {
-  const matchRef = firebase.database().ref("matches");
-
-  // 기존 리스너 제거
-  if (matchListener) matchListener.off();
-
-  matchListener = matchRef
-    .orderByChild("players/A/uid")
-    .equalTo(currentUser.uid)
-    .limitToLast(1);
-
-  matchListener.on("child_added", snap => {
-    loadMatch(snap.key, snap.val());
-  });
 
   // B일 가능성도 체크
   matchRef
