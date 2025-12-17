@@ -286,7 +286,48 @@ async function rejectMatch() {
   }
 }
 
-  
+let currentMatchId = null;
+
+// 매치가 잡혔을 때 호출될 예정
+function onMatched(matchId) {
+  currentMatchId = matchId;
+  document.getElementById("matchStatus").innerHTML =
+    "<p>매치 성사! 경기 후 리플레이 코드를 제출하세요.</p>";
+
+  document.getElementById("replaySection").style.display = "block";
+}
+
+document.getElementById("submitReplayBtn").onclick = async () => {
+  const code = document.getElementById("replayInput").value.trim();
+  if (!code) return alert("리플레이 코드를 입력하세요");
+
+  try {
+    const res = await fetch(
+      "https://https://hogboxing-fucntions.vercel.app/api/submit-replay",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matchId: currentMatchId,
+          uid: currentUser.uid,
+          replayCode: code
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.result === "ok") {
+      alert("결과 제출 완료!");
+      location.reload();
+    }
+
+  } catch (e) {
+    alert("서버 오류");
+    console.error(e);
+  }
+};
+
   
 </script>
 
