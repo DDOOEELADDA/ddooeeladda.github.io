@@ -71,6 +71,10 @@
 <script>
 let currentUser = null;
 let myBattleTag = null;
+let currentMatch = null;
+let currentMatchId = null;
+let matchListener = null;
+
 
 /* =========================
    로그인 체크
@@ -145,6 +149,8 @@ function showMatchmaking() {
   document.getElementById("matchmakingSection").style.display = "block";
   document.getElementById("myBattleTag").textContent =
     `내 배틀태그: ${myBattleTag}`;
+
+  watchMyMatch(); // 🔥 추가
 }
 
 /* =========================
@@ -156,6 +162,112 @@ document.getElementById("findMatchBtn").onclick = () => {
     <p style="opacity:0.7;">상대 플레이어를 찾고 있습니다.</p>
   `;
 };
+
+function watchMyMatch() {
+  const matchRef = firebase.database().ref("matches");
+
+  // 기존 리스너 제거
+  if (matchListener) matchListener.off();
+
+  matchListener = matchRef
+    .orderByChild("players/A/uid")
+    .equalTo(currentUser.uid)
+    .limitToLast(1);
+
+  matchListener.on("child_added", snap => {
+    loadMatch(snap.key, snap.val());
+  });
+
+  // B일 가능성도 체크
+  matchRef
+    .orderByChild("players/B/uid")
+    .equalTo(currentUser.uid)
+    .limitToLast(1)
+    .on("child_added", snap => {
+      loadMatch(snap.key, snap.val());
+    });
+}
+
+function loadMatch(matchId, match) {
+  currentMatchId = matchId;
+  currentMatch = match;
+  renderMatchStatus();
+}
+
+function renderMatchStatus() {
+  const div = document.getElementById("matchStatus");
+  const now = Date.now();
+
+  const meIsB = currentMatch.players.B &&
+                currentMatch.players.B.uid === currentUser.uid;
+
+  let html = `
+    <p><strong>상태:</strong> ${currentMatch.status}</p>
+    <p><strong>상대:</strong>
+      ${meIsB
+        ? currentMatch.players.A.battleTag
+        : (currentMatch.players.B?.battleTag || "대기 중")}
+    </p>
+  `;
+
+  // 🔥 B + PENDING + 1시간 이내 → 거절 버튼
+  if (
+    meIsB &&
+    currentMatch.status === "PENDING" &&
+    now - currentMatch.createdAt < 60 * 60 * 1000
+  ) {
+    const remain =
+      60 * 60 * 1000 - (now - currentMatch.createdAt);
+
+    html += `
+      <p style="color:#ffb347;">
+        거절 가능 남은 시간: ${Math.ceil(remain / 60000)}분
+      </p>
+      <button class="btn-outline"
+              onclick="rejectMatch()"
+              style="margin-top:10px;">
+        매치 거절
+      </button>
+    `;
+  }
+
+  div.innerHTML = html;
+}
+
+async function rejectMatch() {
+  if (!confirm("이 매치를 거절하시겠습니까?")) return;
+
+  try {
+    const res = await fetch(
+      "https://https://hogboxing-fucntions.vercel.app/api/match-reject",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matchId: currentMatchId,
+          uid: currentUser.uid
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "거절 실패");
+      return;
+    }
+
+    alert("매치를 거절했습니다.");
+    location.reload();
+
+  } catch (e) {
+    alert("서버 오류");
+    console.error(e);
+  }
+}
+
+  
+  
 </script>
 
 </body>
