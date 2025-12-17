@@ -165,6 +165,28 @@ function showMatchmaking() {
   watchMyMatch(); // 🔥 추가
 }
 
+function watchMyMatch() {
+  const matchRef = firebase.database().ref("matches");
+
+  // A 플레이어
+  matchRef
+    .orderByChild("players/A/uid")
+    .equalTo(currentUser.uid)
+    .limitToLast(1)
+    .on("child_added", snap => {
+      loadMatch(snap.key, snap.val());
+    });
+
+  // B 플레이어
+  matchRef
+    .orderByChild("players/B/uid")
+    .equalTo(currentUser.uid)
+    .limitToLast(1)
+    .on("child_added", snap => {
+      loadMatch(snap.key, snap.val());
+    });
+}
+
 /* =========================
    매치 찾기 (서버 연동 예정)
 ========================= */
@@ -174,7 +196,7 @@ document.getElementById("findMatchBtn").onclick = async () => {
 
   try {
     const res = await fetch(
-      "https://https://hogboxing-fucntions.vercel.app/api/match-find",
+      "https://hogboxing-fucntions.vercel.app/api/match-find",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,16 +219,6 @@ document.getElementById("findMatchBtn").onclick = async () => {
     console.error(e);
   }
 };
-
-  // B일 가능성도 체크
-  matchRef
-    .orderByChild("players/B/uid")
-    .equalTo(currentUser.uid)
-    .limitToLast(1)
-    .on("child_added", snap => {
-      loadMatch(snap.key, snap.val());
-    });
-}
 
 function loadMatch(matchId, match) {
   currentMatchId = matchId;
@@ -259,7 +271,7 @@ async function rejectMatch() {
 
   try {
     const res = await fetch(
-      "https://https://hogboxing-fucntions.vercel.app/api/match-reject",
+      "https://hogboxing-fucntions.vercel.app/api/match-reject",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -286,8 +298,6 @@ async function rejectMatch() {
   }
 }
 
-let currentMatchId = null;
-
 // 매치가 잡혔을 때 호출될 예정
 function onMatched(matchId) {
   currentMatchId = matchId;
@@ -303,7 +313,7 @@ document.getElementById("submitReplayBtn").onclick = async () => {
 
   try {
     const res = await fetch(
-      "https://https://hogboxing-fucntions.vercel.app/api/submit-replay",
+      "https://hogboxing-fucntions.vercel.app/api/submit-replay",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
