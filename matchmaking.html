@@ -33,11 +33,9 @@
   alert("아직 개발중입니다.");
   location.replace("index.html");
 </script>
-
-
-<!-- <div class="page-container">
-
-  <!-- 배틀태그 등록 -->
+  
+  <div class="page-container">
+  <!-- -- 배틀태그 등록 --
   <div id="battleTagSection" style="display:none;">
     <h1 class="page-title">배틀태그 등록</h1>
     <p>
@@ -55,7 +53,7 @@
     <button id="saveBattleTag" class="btn-outline">등록</button>
   </div>
 
-  <!-- 매치메이킹 -->
+  -- 매치메이킹 --
   <div id="matchmakingSection" style="display:none;">
     <h1 class="page-title">공식 매치메이킹</h1>
 
@@ -76,8 +74,7 @@
     <button id="submitReplayBtn" class="btn-outline">
       리플레이 제출
     </button>
-  </div>
-  
+  </div> -->
 </div>
 
 <!-- Firebase v8 -->
@@ -87,6 +84,7 @@
 <script src="firebase.js"></script>
 
 <script>
+
 let currentUser = null;
 let myBattleTag = null;
 let currentMatch = null;
@@ -94,9 +92,9 @@ let currentMatchId = null;
 let matchListener = null;
 
 
-/* =========================
+ =========================
    로그인 체크
-========================= */
+========================= 
 firebase.auth().onAuthStateChanged(async user => {
   if (!user) {
     alert("로그인이 필요합니다.");
@@ -123,17 +121,17 @@ firebase.auth().onAuthStateChanged(async user => {
   }
 });
 
-/* =========================
+ =========================
    로그아웃
-========================= */
+========================= 
 document.getElementById("logoutBtn").onclick = e => {
   e.preventDefault();
   firebase.auth().signOut().then(() => location.reload());
 };
-
-/* =========================
+/*
+ =========================
    배틀태그 저장 (🔥 핵심 수정)
-========================= */
+========================= 
 document.getElementById("saveBattleTag").onclick = async () => {
   const input = document.getElementById("battleTagInput");
   const tag = input.value.trim();
@@ -159,9 +157,9 @@ document.getElementById("saveBattleTag").onclick = async () => {
   }
 };
 
-/* =========================
+ =========================
    매치메이킹 화면 표시
-========================= */
+========================= 
 function showMatchmaking() {
   document.getElementById("battleTagSection").style.display = "none";
   document.getElementById("matchmakingSection").style.display = "block";
@@ -193,9 +191,9 @@ function watchMyMatch() {
     });
 }
 
-/* =========================
+ =========================
    매치 찾기 (서버 연동 예정)
-========================= */
+========================= 
 document.getElementById("findMatchBtn").onclick = async () => {
   document.getElementById("matchStatus").innerHTML =
     "<p>매치메이킹 대기 중...</p>";
@@ -342,8 +340,9 @@ document.getElementById("submitReplayBtn").onclick = async () => {
     alert("서버 오류");
     console.error(e);
   }
-}; -->
-  
+};
+
+*/
 </script>
 
 </body>
