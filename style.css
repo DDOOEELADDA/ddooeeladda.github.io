@@ -597,6 +597,128 @@ a:hover {
   box-shadow: 0 4px 10px rgba(255, 140, 0, 0.35);
 }
 
+/* ========================= */
+/* 📱 MOBILE FIX (PC 영향 없음) */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+  /* 네비게이션 */
+  .nav-inner {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .menu a {
+    margin: 6px 10px;
+    font-size: 14px;
+  }
+
+  /* 히어로 */
+  .hero {
+    padding: 120px 20px 60px;
+    height: auto;
+    min-height: 70vh;
+  }
+
+  .hero-content h2 {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  .hero-content p {
+    font-size: 15px;
+  }
+
+  .scroll-indicator {
+    display: none; /* 모바일에선 제거 */
+  }
+
+  /* contact 버튼 */
+  .contact-wrapper {
+    position: static;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* 카드 */
+  .cards {
+    width: 95%;
+    gap: 20px;
+  }
+
+  /* 게시판 헤더 */
+  .board-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .write-btn {
+    width: 100%;
+  }
+
+  /* 게시판 테이블 가로 스크롤 허용 */
+  .board-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* 일반 테이블 */
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* 페이지 컨테이너 */
+  .page-container {
+    margin: 120px 15px 60px;
+    padding: 20px;
+  }
+
+  /* 게시글 보기 */
+  .post-container {
+    padding: 15px;
+  }
+
+  .post-card {
+    padding: 20px;
+  }
+
+  .post-title {
+    font-size: 22px;
+  }
+
+  .post-content {
+    font-size: 15px;
+  }
+
+  /* 댓글 버튼 */
+  .comment-btn {
+    width: 100%;
+    align-self: stretch;
+  }
+
+  /* 작은 hero */
+  .small-hero {
+    height: auto;
+    padding: 120px 20px 60px;
+  }
+
+  .small-hero .hero-title {
+    font-size: 28px;
+    text-align: center;
+  }
+
+}
 
 
 
