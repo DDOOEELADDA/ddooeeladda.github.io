@@ -199,6 +199,69 @@ async function submitComment() {
 window.submitComment = submitComment;
 window.loadPostDetail = loadPostDetail;
 
+/* ---------------------------------------------------
+    리플레이 제출 기능 (replay.html)
+--------------------------------------------------- */
+
+const replayBtn = document.getElementById("submitReplayBtn");
+
+if (replayBtn) {
+
+  const THREE_HOURS = 3 * 60 * 60 * 1000;
+
+  function getDeviceId() {
+    let id = localStorage.getItem("deviceId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("deviceId", id);
+    }
+    return id;
+  }
+
+  replayBtn.addEventListener("click", async () => {
+
+    const input = document.getElementById("replayInput");
+    const code = input.value.trim();
+
+    if (!code) {
+      alert("리플레이 코드를 입력하세요.");
+      return;
+    }
+
+    const deviceId = getDeviceId();
+    const deviceRef = doc(db, "deviceLimits", deviceId);
+    const snap = await getDoc(deviceRef);
+
+    const now = Date.now();
+
+    if (snap.exists()) {
+      const lastSubmit = snap.data().lastSubmit;
+
+      if (now - lastSubmit < THREE_HOURS) {
+        const remain = Math.ceil(
+          (THREE_HOURS - (now - lastSubmit)) / 60000
+        );
+        alert(`⚠️ 3시간 제한 중입니다. ${remain}분 후 재시도`);
+        return;
+      }
+    }
+
+    // 리플레이 저장
+    await addDoc(collection(db, "replays"), {
+      replayCode: code,
+      deviceId: deviceId,
+      submittedAt: serverTimestamp()
+    });
+
+    // 제한 시간 갱신
+    await setDoc(deviceRef, {
+      lastSubmit: now
+    });
+
+    alert("✅ 리플레이 제출 완료!");
+    input.value = "";
+  });
+}
 
 
 
