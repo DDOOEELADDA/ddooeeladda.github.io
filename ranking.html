@@ -43,7 +43,19 @@
       <!-- 추후 Firebase 랭킹 데이터 -->
     </tbody>
   </table>
+  <br><br>
+
+<button id="searchBtn">🔍 검색</button>
+
+<div id="searchBox" style="display:none; margin-top:15px;">
+  <input id="searchInput" placeholder="닉네임 입력">
+  <button id="doSearch">확인</button>
 </div>
+
+<div id="searchResult" style="margin-top:15px;"></div>
+</div>
+
+
 
 <!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -84,7 +96,81 @@
     }
   });
 </script>
+<script>
+// 검색창 열기
+document.getElementById("searchBtn").onclick = function() {
+  const box = document.getElementById("searchBox");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+};
+
+// 검색 실행
+document.getElementById("doSearch").onclick = function() {
+
+  const name = document.getElementById("searchInput").value.trim();
+  const resultDiv = document.getElementById("searchResult");
+
+  if (!name) return;
+
+  database.ref("rankings")
+    .orderByChild("name")
+    .equalTo(name)
+    .once("value")
+    .then(snapshot => {
+
+      if (!snapshot.exists()) {
+        resultDiv.innerText = "해당 플레이어 없음";
+        return;
+      }
+
+      snapshot.forEach(child => {
+        const player = child.val();
+        resultDiv.innerHTML = `
+          닉네임: ${player.name}<br>
+          점수: ${player.score}<br>
+          승: ${player.wins}<br>
+          패: ${player.losses}
+        `;
+      });
+
+    });
+};
+const rankingTableBody = document.querySelector("#rankingTable tbody");
+
+function loadTop5() {
+  database.ref("rankings")
+    .orderByChild("score")
+    .limitToLast(5)
+    .on("value", snapshot => {
+
+      rankingTableBody.innerHTML = "";
+
+      const data = [];
+
+      snapshot.forEach(child => {
+        data.push(child.val());
+      });
+
+      // 점수 높은 순 정렬
+      data.sort((a,b) => b.score - a.score);
+
+      data.forEach((player, index) => {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${player.name}</td>
+            <td>${player.score}</td>
+          </tr>
+        `;
+        rankingTableBody.innerHTML += row;
+      });
+
+    });
+}
+
+loadTop5();
+</script>
 
 </body>
 </html>
+
 
