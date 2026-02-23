@@ -1,5 +1,5 @@
 import {
-  db,
+  database,
 } from "./firebase.js";
 
 import {
@@ -92,7 +92,7 @@ if (submitBtn) {
     }
 
     try {
-      await addDoc(collection(db, "posts"), {
+      await addDoc(collection(database, "posts"), {
         title,
         content,
         author: localStorage.getItem("nickname") || "익명",
@@ -124,7 +124,7 @@ async function loadPostDetail() {
 
   if (!postId) return;
 
-  const docRef = doc(db, "posts", postId);
+  const docRef = doc(database, "posts", postId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
@@ -245,6 +245,7 @@ document.getElementById("submitReplay").addEventListener("click", function () {
       alert("제출 완료!");
     });
 });
+
 
 
 
