@@ -1,8 +1,4 @@
 import {
-  database,
-} from "./firebase.js";
-
-import {
   collection,
   addDoc,
   getDocs,
@@ -245,6 +241,7 @@ document.getElementById("submitReplay").addEventListener("click", function () {
       alert("제출 완료!");
     });
 });
+
 
 
 
