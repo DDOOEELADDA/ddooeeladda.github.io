@@ -70,6 +70,7 @@
 /* ===============================
    유틸
 ================================ */
+const ADMIN_UID = "JJwwcnHslrahh1XoXTPJdo9puGn1";
 const postId = new URLSearchParams(location.search).get("id");
 
 if (!postId) {
@@ -146,7 +147,13 @@ postRef.once("value").then(snapshot => {
 function updateDeleteButton() {
   const btn = document.getElementById("deletePostBtn");
 
-  if (currentUser && postAuthorUid && currentUser.uid === postAuthorUid) {
+  if (
+    currentUser &&
+    (
+      currentUser.uid === postAuthorUid ||
+      currentUser.uid === ADMIN_UID
+    }
+  ) {
     btn.style.display = "inline-block";
   } else {
     btn.style.display = "none";
@@ -313,6 +320,7 @@ function renderPagination() {
 
 </body>
 </html>
+
 
 
 
