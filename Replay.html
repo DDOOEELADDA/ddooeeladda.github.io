@@ -16,333 +16,57 @@
       <a href="index.html">홈</a>
       <a href="ranking.html">랭킹</a>
       <a href="board.html">게시판</a>
-
-      <!-- 로그인 전 -->
-      <a href="login.html" id="loginMenu">로그인</a>
-
-      <!-- 로그인 후 -->
-      <span id="userMenu" style="display:none;">
-        <span id="userName" style="margin-left:15px; margin-right:5px;"></span>
-        <a href="#" id="logoutBtn">로그아웃</a>
-      </span>
     </nav>
   </div>
 </header>
 
-<script>
-  alert("아직 개발중입니다.");
-  location.replace("index.html");
-</script>
-  
-  <div class="page-container">
-  <!-- -- 배틀태그 등록 --
-  <div id="battleTagSection" style="display:none;">
-    <h1 class="page-title">배틀태그 등록</h1>
-    <p>
-      공식 매치 참여를 위해<br>
-      <strong>오버워치2 배틀태그</strong>를 등록해야 합니다.
-    </p>
+<div class="page-container">
+  <h1 class="page-title">리플레이 코드 제출</h1>
 
-    <input
-      id="battleTagInput"
-      placeholder="닉네임#1234"
-      style="margin-top:15px; width:250px; padding:10px;"
-    />
+  <p>
+    경기 후 발급된 <strong>오버워치2 리플레이 코드</strong>를 입력하세요.
+  </p>
 
-    <br><br>
-    <button id="saveBattleTag" class="btn-outline">등록</button>
-  </div>
+  <input
+    id="replayInput"
+    placeholder="예: ABCD123"
+    style="padding:10px; width:250px;"
+  />
 
-  -- 매치메이킹 --
-  <div id="matchmakingSection" style="display:none;">
-    <h1 class="page-title">공식 매치메이킹</h1>
+  <br><br>
 
-    <p id="myBattleTag"></p>
+  <button id="submitReplayBtn" class="btn-outline">
+    제출하기
+  </button>
 
-    <button id="findMatchBtn" class="btn-outline">매치 찾기</button>
-
-    <div id="matchStatus" style="margin-top:25px;"></div>
-  </div>
-
-  <div id="replaySection" style="display:none; margin-top:20px;">
-    <input
-      id="replayInput"
-      placeholder="리플레이 코드 입력"
-      style="padding:10px; width:200px;"
-    />
-    <br><br>
-    <button id="submitReplayBtn" class="btn-outline">
-      리플레이 제출
-    </button>
-  </div> -->
+  <div id="resultMsg" style="margin-top:20px;"></div>
 </div>
 
-<!-- Firebase v8 -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="firebase.js"></script>
-
 <script>
-
-let currentUser = null;
-let myBattleTag = null;
-let currentMatch = null;
-let currentMatchId = null;
-let matchListener = null;
-
-
- =========================
-   로그인 체크
-========================= 
-firebase.auth().onAuthStateChanged(async user => {
-  if (!user) {
-    alert("로그인이 필요합니다.");
-    location.replace("login.html");
-    return;
-  }
-
-  currentUser = user;
-
-  document.getElementById("loginMenu").style.display = "none";
-  document.getElementById("userMenu").style.display = "inline";
-  document.getElementById("userName").textContent =
-    `[${user.displayName || user.email}]`;
-
-  const snap = await firebase.database()
-    .ref("users/" + user.uid + "/battleTag")
-    .once("value");
-
-  if (!snap.exists()) {
-    document.getElementById("battleTagSection").style.display = "block";
-  } else {
-    myBattleTag = snap.val();
-    showMatchmaking();
-  }
-});
-
- =========================
-   로그아웃
-========================= 
-document.getElementById("logoutBtn").onclick = e => {
-  e.preventDefault();
-  firebase.auth().signOut().then(() => location.reload());
-};
-/*
- =========================
-   배틀태그 저장 (🔥 핵심 수정)
-========================= 
-document.getElementById("saveBattleTag").onclick = async () => {
-  const input = document.getElementById("battleTagInput");
-  const tag = input.value.trim();
-
-  if (!/^.{3,12}#[0-9]{4,6}$/.test(tag)) {
-    alert("배틀태그 형식이 올바르지 않습니다. (닉네임#1234)");
-    return;
-  }
-
-  try {
-    const userRef = firebase.database().ref("users/" + currentUser.uid);
-
-    // 🔥 Rules에 맞게 child 단위로 저장
-    await userRef.child("battleTag").set(tag);
-    await userRef.child("createdAt").set(new Date().toISOString());
-
-    myBattleTag = tag;
-    showMatchmaking();
-
-  } catch (e) {
-    alert("배틀태그 등록 실패");
-    console.error(e);
-  }
-};
-
- =========================
-   매치메이킹 화면 표시
-========================= 
-function showMatchmaking() {
-  document.getElementById("battleTagSection").style.display = "none";
-  document.getElementById("matchmakingSection").style.display = "block";
-  document.getElementById("myBattleTag").textContent =
-    `내 배틀태그: ${myBattleTag}`;
-
-  watchMyMatch(); // 🔥 추가
-}
-
-function watchMyMatch() {
-  const matchRef = firebase.database().ref("matches");
-
-  // A 플레이어
-  matchRef
-    .orderByChild("players/A/uid")
-    .equalTo(currentUser.uid)
-    .limitToLast(1)
-    .on("child_added", snap => {
-      loadMatch(snap.key, snap.val());
-    });
-
-  // B 플레이어
-  matchRef
-    .orderByChild("players/B/uid")
-    .equalTo(currentUser.uid)
-    .limitToLast(1)
-    .on("child_added", snap => {
-      loadMatch(snap.key, snap.val());
-    });
-}
-
- =========================
-   매치 찾기 (서버 연동 예정)
-========================= 
-document.getElementById("findMatchBtn").onclick = async () => {
-  document.getElementById("matchStatus").innerHTML =
-    "<p>매치메이킹 대기 중...</p>";
-
-  try {
-    const res = await fetch(
-      "https://hogboxing-fucntions.vercel.app/api/match-find",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: currentUser.uid,
-          battleTag: myBattleTag
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (data.result === "no matches") {
-      document.getElementById("matchStatus").innerHTML =
-        "<p>상대 찾는 중...</p>";
-    }
-
-  } catch (e) {
-    alert("매치 서버 오류");
-    console.error(e);
-  }
-};
-
-function loadMatch(matchId, match) {
-  currentMatchId = matchId;
-  currentMatch = match;
-  renderMatchStatus();
-}
-
-function renderMatchStatus() {
-  const div = document.getElementById("matchStatus");
-  const now = Date.now();
-
-  const meIsB = currentMatch.players.B &&
-                currentMatch.players.B.uid === currentUser.uid;
-
-  let html = `
-    <p><strong>상태:</strong> ${currentMatch.status}</p>
-    <p><strong>상대:</strong>
-      ${meIsB
-        ? currentMatch.players.A.battleTag
-        : (currentMatch.players.B?.battleTag || "대기 중")}
-    </p>
-  `;
-
-  // 🔥 B + PENDING + 1시간 이내 → 거절 버튼
-  if (
-    meIsB &&
-    currentMatch.status === "PENDING" &&
-    now - currentMatch.createdAt < 60 * 60 * 1000
-  ) {
-    const remain =
-      60 * 60 * 1000 - (now - currentMatch.createdAt);
-
-    html += `
-      <p style="color:#ffb347;">
-        거절 가능 남은 시간: ${Math.ceil(remain / 60000)}분
-      </p>
-      <button class="btn-outline"
-              onclick="rejectMatch()"
-              style="margin-top:10px;">
-        매치 거절
-      </button>
-    `;
-  }
-
-  div.innerHTML = html;
-}
-
-async function rejectMatch() {
-  if (!confirm("이 매치를 거절하시겠습니까?")) return;
-
-  try {
-    const res = await fetch(
-      "https://hogboxing-fucntions.vercel.app/api/match-reject",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matchId: currentMatchId,
-          uid: currentUser.uid
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.error || "거절 실패");
-      return;
-    }
-
-    alert("매치를 거절했습니다.");
-    location.reload();
-
-  } catch (e) {
-    alert("서버 오류");
-    console.error(e);
-  }
-}
-
-// 매치가 잡혔을 때 호출될 예정
-function onMatched(matchId) {
-  currentMatchId = matchId;
-  document.getElementById("matchStatus").innerHTML =
-    "<p>매치 성사! 경기 후 리플레이 코드를 제출하세요.</p>";
-
-  document.getElementById("replaySection").style.display = "block";
-}
-
 document.getElementById("submitReplayBtn").onclick = async () => {
   const code = document.getElementById("replayInput").value.trim();
-  if (!code) return alert("리플레이 코드를 입력하세요");
+  if (!code) {
+    alert("리플레이 코드를 입력하세요.");
+    return;
+  }
 
   try {
-    const res = await fetch(
-      "https://hogboxing-fucntions.vercel.app/api/submit-replay",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matchId: currentMatchId,
-          uid: currentUser.uid,
-          replayCode: code
-        })
-      }
-    );
+    const res = await fetch("/submit-replay", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ replayCode: code })
+    });
 
     const data = await res.json();
 
-    if (data.result === "ok") {
-      alert("결과 제출 완료!");
-      location.reload();
-    }
+    document.getElementById("resultMsg").innerHTML =
+      `<p>${data.message}</p>`;
 
   } catch (e) {
     alert("서버 오류");
     console.error(e);
   }
 };
-
-*/
 </script>
 
 </body>
