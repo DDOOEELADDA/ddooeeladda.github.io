@@ -8,7 +8,7 @@
 
 <body class="bg">
 
-<h1 style="text-align:center;">관리자 랭킹 관리</h1>
+<h1 style="text-align:center;">관리자 센터</h1>
 
 <div style="text-align:center; margin-bottom:30px;">
   <input id="playerName" placeholder="닉네임 (예: 뚜이#1234)">
@@ -38,7 +38,7 @@
 
 <script>
 
-const ADMIN_UID = "여기에네UID"; // 🔥 네 UID 넣어라
+const ADMIN_UID = "JJwwcnHslrahh1XoXTPJdo9puGn1";
 
 // 로그인 확인
 auth.onAuthStateChanged(user => {
@@ -137,7 +137,7 @@ function addLoss(key, wins, losses) {
 
 // 삭제
 function deletePlayer(key) {
-  if (!confirm("삭제할까?")) return;
+  if (!confirm("삭제하겠습니까?")) return;
   database.ref("rankings/" + key).remove();
 }
 
