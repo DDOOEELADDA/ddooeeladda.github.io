@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<script type="module" src="script.js"></script>
 <body class="bg">
 
 <header class="nav">
@@ -25,12 +24,60 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   
 <script src="firebase.js"></script>
-<script src="script.js"></script>
+
+<script>
+document.getElementById("submitReplayBtn").addEventListener("click", function () {
+
+  var replayCode = document.getElementById("replayInput").value.trim();
+  var resultMsg = document.getElementById("resultMsg");
+
+  if (!replayCode) {
+    resultMsg.innerText = "리플레이 코드를 입력하세요.";
+    return;
+  }
+
+  // 기기 ID 생성
+  var deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = "device_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("deviceId", deviceId);
+  }
+
+  var now = Date.now();
+  var limitRef = database.ref("deviceLimits/" + deviceId);
+
+  limitRef.once("value").then(function(snapshot) {
+    var data = snapshot.val();
+
+    if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
+      resultMsg.innerText = "3시간 동안 다시 제출할 수 없습니다.";
+      return;
+    }
+
+    // 리플레이 저장
+    database.ref("replays").push({
+      code: replayCode,
+      deviceId: deviceId,
+      submittedAt: now
+    });
+
+    // 제한 시간 저장
+    limitRef.set({
+      lastSubmit: now
+    });
+
+    resultMsg.innerText = "제출 완료!";
+    document.getElementById("replayInput").value = "";
+  });
+
+});
+</script>
+
 <div class="page-container">
   <h1 class="page-title">리플레이 코드 제출</h1>
 
   <p>
-    경기 후 발급된 <strong>오버워치2 리플레이 코드</strong>를 입력하세요.
+    경기 후, 발급한 <strong>호그 주먹전 1대1 리플레이 코드</strong>를 입력하세요.
   </p>
 
   <input
