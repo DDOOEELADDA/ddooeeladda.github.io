@@ -54,12 +54,20 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("submitReplayBtn").addEventListener("click", function () {
 
     var replayCode = document.getElementById("replayInput").value.trim();
-
+    replayCode = replayCode.toUpperCase();
+    
     if (!replayCode) {
       resultMsg.innerText = "리플레이 코드를 입력하세요.";
       return;
     }
-
+    
+    var codePattern = /^[A-Z0-9]{6}$/;
+    
+    if (!codePattern.test(replayCode)) {
+      resultMsg.innerText = "유효한 리플레이 코드 형식이 아닙니다.";
+      return;
+    }
+    
     var deviceId = localStorage.getItem("deviceId");
     if (!deviceId) {
       deviceId = "device_" + Math.random().toString(36).substr(2, 9);
@@ -96,10 +104,32 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // 제출 가능
-      database.ref("replays").push({
-        code: replayCode,
-        deviceId: deviceId,
-        submittedAt: now
+    // 🔥 중복 코드 검사
+    database.ref("replays")
+      .orderByChild("code")
+      .equalTo(replayCode)
+      .once("value")
+      .then(function(snapshot) {
+    
+        if (snapshot.exists()) {
+          resultMsg.innerText = "이미 제출된 리플레이 코드입니다.";
+          return;
+        }
+    
+        // 중복 아니면 저장
+        database.ref("replays").push({
+          code: replayCode,
+          deviceId: deviceId,
+          submittedAt: now
+        });
+    
+        limitRef.set({
+          lastSubmit: now
+        });
+    
+        resultMsg.innerText = "제출 완료!";
+        document.getElementById("replayInput").value = "";
+    
       });
 
       limitRef.set({
