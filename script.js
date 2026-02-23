@@ -55,7 +55,7 @@ async function loadPostList() {
   const listEl = document.getElementById("post-list");
   if (!listEl) return;
 
-  const q = query(collection(db, "posts"), orderBy("date", "desc"));
+  const q = query(collection(database, "posts"), orderBy("date", "desc"));
   const data = await getDocs(q);
 
   listEl.innerHTML = ""; // 초기화
@@ -152,7 +152,7 @@ async function loadComments() {
   const list = document.getElementById("comment-list");
 
   const q = query(
-    collection(db, "posts", postId, "comments"),
+    collection(database, "posts", postId, "comments"),
     orderBy("date", "asc")
   );
   const data = await getDocs(q);
@@ -186,7 +186,7 @@ async function submitComment() {
     return;
   }
 
-  await addDoc(collection(db, "posts", postId, "comments"), {
+  await addDoc(collection(database, "posts", postId, "comments"), {
     text: input.value.trim(),
     author: localStorage.getItem("nickname") || "익명",
     date: new Date(),
@@ -245,6 +245,7 @@ document.getElementById("submitReplay").addEventListener("click", function () {
       alert("제출 완료!");
     });
 });
+
 
 
 
