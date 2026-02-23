@@ -1,6 +1,6 @@
 import {
   database,
-} from "/firebase.js";
+} from "./firebase.js";
 
 import {
   collection,
@@ -245,6 +245,7 @@ document.getElementById("submitReplay").addEventListener("click", function () {
       alert("제출 완료!");
     });
 });
+
 
 
 
