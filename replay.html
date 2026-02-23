@@ -49,10 +49,11 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
+  var resultMsg = document.getElementById("resultMsg");
+
   document.getElementById("submitReplayBtn").addEventListener("click", function () {
 
     var replayCode = document.getElementById("replayInput").value.trim();
-    var resultMsg = document.getElementById("resultMsg");
 
     if (!replayCode) {
       resultMsg.innerText = "리플레이 코드를 입력하세요.";
@@ -71,11 +72,30 @@ document.addEventListener("DOMContentLoaded", function () {
     limitRef.once("value").then(function(snapshot) {
       var data = snapshot.val();
 
-      if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
-        resultMsg.innerText = "3시간 동안 다시 제출할 수 없습니다.";
-        return;
+      if (data && data.lastSubmit) {
+
+        var diff = now - data.lastSubmit;
+        var limit = 3 * 60 * 60 * 1000; // 3시간
+
+        if (diff < limit) {
+
+          var remaining = limit - diff;
+
+          var hours = Math.floor(remaining / (1000 * 60 * 60));
+          var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+          resultMsg.innerText =
+            "재제출까지 남은 시간: " +
+            hours + "시간 " +
+            minutes + "분 " +
+            seconds + "초";
+
+          return;
+        }
       }
 
+      // 제출 가능
       database.ref("replays").push({
         code: replayCode,
         deviceId: deviceId,
