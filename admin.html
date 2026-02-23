@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg">
+
+<h1 style="text-align:center;">관리자 랭킹 관리</h1>
+
+<div style="text-align:center; margin-bottom:30px;">
+  <input id="playerName" placeholder="닉네임 (예: 뚜이#1234)">
+  <button id="addPlayer">플레이어 추가</button>
+</div>
+
+<table border="1" style="margin:auto; text-align:center;">
+  <thead>
+    <tr>
+      <th>닉네임</th>
+      <th>승</th>
+      <th>패</th>
+      <th>점수</th>
+      <th>관리</th>
+    </tr>
+  </thead>
+  <tbody id="adminTable"></tbody>
+</table>
+
+
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script src="firebase.js"></script>
+
+<script>
+
+const ADMIN_UID = "여기에네UID"; // 🔥 네 UID 넣어라
+
+// 로그인 확인
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    alert("로그인 필요");
+    location.href = "login.html";
+    return;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+    alert("관리자만 접근 가능");
+    location.href = "index.html";
+    return;
+  }
+
+  loadPlayers();
+});
+
+// 플레이어 추가
+document.getElementById("addPlayer").onclick = function() {
+
+  const name = document.getElementById("playerName").value.trim();
+  if (!name) return alert("닉네임 입력");
+
+  const newRef = database.ref("rankings").push();
+
+  newRef.set({
+    name: name,
+    wins: 0,
+    losses: 0,
+    score: 0
+  });
+
+  document.getElementById("playerName").value = "";
+};
+
+
+// 플레이어 목록 불러오기
+function loadPlayers() {
+
+  database.ref("rankings").on("value", snapshot => {
+
+    const table = document.getElementById("adminTable");
+    table.innerHTML = "";
+
+    snapshot.forEach(child => {
+
+      const data = child.val();
+      const key = child.key;
+
+      table.innerHTML += `
+        <tr>
+          <td>${data.name}</td>
+          <td>${data.wins}</td>
+          <td>${data.losses}</td>
+          <td>${data.score}</td>
+          <td>
+            <button onclick="addWin('${key}', ${data.wins}, ${data.losses})">승 +1</button>
+            <button onclick="addLoss('${key}', ${data.wins}, ${data.losses})">패 +1</button>
+            <button onclick="deletePlayer('${key}')">삭제</button>
+          </td>
+        </tr>
+      `;
+
+    });
+
+  });
+}
+
+
+// 승 추가
+function addWin(key, wins, losses) {
+
+  wins++;
+  const score = wins * 5 - losses * 3;
+
+  database.ref("rankings/" + key).update({
+    wins: wins,
+    score: score
+  });
+}
+
+
+// 패 추가
+function addLoss(key, wins, losses) {
+
+  losses++;
+  const score = wins * 5 - losses * 3;
+
+  database.ref("rankings/" + key).update({
+    losses: losses,
+    score: score
+  });
+}
+
+
+// 삭제
+function deletePlayer(key) {
+  if (!confirm("삭제할까?")) return;
+  database.ref("rankings/" + key).remove();
+}
+
+</script>
+
+</body>
+</html>
