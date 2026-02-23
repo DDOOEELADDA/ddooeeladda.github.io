@@ -25,54 +25,6 @@
   
 <script src="firebase.js"></script>
 
-<script>
-document.getElementById("submitReplayBtn").addEventListener("click", function () {
-
-  var replayCode = document.getElementById("replayInput").value.trim();
-  var resultMsg = document.getElementById("resultMsg");
-
-  if (!replayCode) {
-    resultMsg.innerText = "리플레이 코드를 입력하세요.";
-    return;
-  }
-
-  // 기기 ID 생성
-  var deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    deviceId = "device_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("deviceId", deviceId);
-  }
-
-  var now = Date.now();
-  var limitRef = database.ref("deviceLimits/" + deviceId);
-
-  limitRef.once("value").then(function(snapshot) {
-    var data = snapshot.val();
-
-    if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
-      resultMsg.innerText = "3시간 동안 다시 제출할 수 없습니다.";
-      return;
-    }
-
-    // 리플레이 저장
-    database.ref("replays").push({
-      code: replayCode,
-      deviceId: deviceId,
-      submittedAt: now
-    });
-
-    // 제한 시간 저장
-    limitRef.set({
-      lastSubmit: now
-    });
-
-    resultMsg.innerText = "제출 완료!";
-    document.getElementById("replayInput").value = "";
-  });
-
-});
-</script>
-
 <div class="page-container">
   <h1 class="page-title">리플레이 코드 제출</h1>
 
@@ -94,5 +46,53 @@ document.getElementById("submitReplayBtn").addEventListener("click", function ()
 
   <div id="resultMsg" style="margin-top:20px;"></div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  document.getElementById("submitReplayBtn").addEventListener("click", function () {
+
+    var replayCode = document.getElementById("replayInput").value.trim();
+    var resultMsg = document.getElementById("resultMsg");
+
+    if (!replayCode) {
+      resultMsg.innerText = "리플레이 코드를 입력하세요.";
+      return;
+    }
+
+    var deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      deviceId = "device_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("deviceId", deviceId);
+    }
+
+    var now = Date.now();
+    var limitRef = database.ref("deviceLimits/" + deviceId);
+
+    limitRef.once("value").then(function(snapshot) {
+      var data = snapshot.val();
+
+      if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
+        resultMsg.innerText = "3시간 동안 다시 제출할 수 없습니다.";
+        return;
+      }
+
+      database.ref("replays").push({
+        code: replayCode,
+        deviceId: deviceId,
+        submittedAt: now
+      });
+
+      limitRef.set({
+        lastSubmit: now
+      });
+
+      resultMsg.innerText = "제출 완료!";
+      document.getElementById("replayInput").value = "";
+    });
+
+  });
+
+});
+</script>
 </body>
 </html>
