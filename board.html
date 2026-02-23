@@ -57,6 +57,7 @@
 <script src="firebase.js"></script>
 
 <script>
+const ADMIN_UID = "JJwwcnHslrahh1XoXTPJdo9puGn1";
 let currentUser = null;
 
 /* ===============================
@@ -124,8 +125,10 @@ async function loadPosts() {
     let deleteBtn = "";
     if (
       currentUser &&
-      post.authorUid &&
-      post.authorUid === currentUser.uid
+      (
+        post.authorUid === currentUser.uid ||
+        currentUser.uid === ADMIN_UID
+      )
     ) {
       deleteBtn = `<button class="btn-outline btn-small" data-key="${post.key}">삭제</button>`;
     }
@@ -169,4 +172,5 @@ async function loadPosts() {
 
 </body>
 </html>
+
 
