@@ -203,65 +203,48 @@ window.loadPostDetail = loadPostDetail;
     리플레이 제출 기능 (replay.html)
 --------------------------------------------------- */
 
-const replayBtn = document.getElementById("submitReplayBtn");
+document.getElementById("submitReplay").addEventListener("click", function () {
 
-if (replayBtn) {
+  var replayCode = document.getElementById("replayCode").value.trim();
 
-  const THREE_HOURS = 3 * 60 * 60 * 1000;
-
-  function getDeviceId() {
-    let id = localStorage.getItem("deviceId");
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("deviceId", id);
-    }
-    return id;
+  if (!replayCode) {
+    alert("리플레이 코드를 입력하세요.");
+    return;
   }
 
-  replayBtn.addEventListener("click", async () => {
+  var deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = "device_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("deviceId", deviceId);
+  }
 
-    const input = document.getElementById("replayInput");
-    const code = input.value.trim();
+  var now = Date.now();
 
-    if (!code) {
-      alert("리플레이 코드를 입력하세요.");
-      return;
-    }
+  database.ref("deviceLimits/" + deviceId).once("value")
+    .then(function(snapshot) {
 
-    const deviceId = getDeviceId();
-    const deviceRef = doc(db, "deviceLimits", deviceId);
-    const snap = await getDoc(deviceRef);
+      var data = snapshot.val();
 
-    const now = Date.now();
-
-    if (snap.exists()) {
-      const lastSubmit = snap.data().lastSubmit;
-
-      if (now - lastSubmit < THREE_HOURS) {
-        const remain = Math.ceil(
-          (THREE_HOURS - (now - lastSubmit)) / 60000
-        );
-        alert(`⚠️ 3시간 제한 중입니다. ${remain}분 후 재시도`);
+      if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
+        alert("3시간 동안 다시 제출할 수 없습니다.");
         return;
       }
-    }
 
-    // 리플레이 저장
-    await addDoc(collection(db, "replays"), {
-      replayCode: code,
-      deviceId: deviceId,
-      submittedAt: serverTimestamp()
+      // 리플레이 저장
+      database.ref("replays").push({
+        code: replayCode,
+        deviceId: deviceId,
+        submittedAt: now
+      });
+
+      // 제한 시간 저장
+      database.ref("deviceLimits/" + deviceId).set({
+        lastSubmit: now
+      });
+
+      alert("제출 완료!");
     });
-
-    // 제한 시간 갱신
-    await setDoc(deviceRef, {
-      lastSubmit: now
-    });
-
-    alert("✅ 리플레이 제출 완료!");
-    input.value = "";
-  });
-}
+});
 
 
 
