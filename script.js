@@ -1,5 +1,5 @@
 import {
-  auth
+  db,
 } from "./firebase.js";
 
 import {
@@ -55,7 +55,7 @@ async function loadPostList() {
   const listEl = document.getElementById("post-list");
   if (!listEl) return;
 
-  const q = query(collection(database, "posts"), orderBy("date", "desc"));
+  const q = query(collection(db, "posts"), orderBy("date", "desc"));
   const data = await getDocs(q);
 
   listEl.innerHTML = ""; // 초기화
@@ -92,7 +92,7 @@ if (submitBtn) {
     }
 
     try {
-      await addDoc(collection(database, "posts"), {
+      await addDoc(collection(db, "posts"), {
         title,
         content,
         author: localStorage.getItem("nickname") || "익명",
@@ -124,7 +124,7 @@ async function loadPostDetail() {
 
   if (!postId) return;
 
-  const docRef = doc(database, "posts", postId);
+  const docRef = doc(db, "posts", postId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
@@ -152,7 +152,7 @@ async function loadComments() {
   const list = document.getElementById("comment-list");
 
   const q = query(
-    collection(database, "posts", postId, "comments"),
+    collection(db, "posts", postId, "comments"),
     orderBy("date", "asc")
   );
   const data = await getDocs(q);
@@ -186,7 +186,7 @@ async function submitComment() {
     return;
   }
 
-  await addDoc(collection(database, "posts", postId, "comments"), {
+  await addDoc(collection(db, "posts", postId, "comments"), {
     text: input.value.trim(),
     author: localStorage.getItem("nickname") || "익명",
     date: new Date(),
@@ -203,55 +203,63 @@ window.loadPostDetail = loadPostDetail;
     리플레이 제출 기능 (replay.html)
 --------------------------------------------------- */
 
-document.getElementById("submitReplay").addEventListener("click", function () {
+const replayBtn = document.getElementById("submitReplayBtn");
 
-  var replayCode = document.getElementById("replayCode").value.trim();
+if (replayBtn) {
 
-  if (!replayCode) {
-    alert("리플레이 코드를 입력하세요.");
-    return;
+  const THREE_HOURS = 3 * 60 * 60 * 1000;
+
+  function getDeviceId() {
+    let id = localStorage.getItem("deviceId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("deviceId", id);
+    }
+    return id;
   }
 
-  var deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    deviceId = "device_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("deviceId", deviceId);
-  }
+  replayBtn.addEventListener("click", async () => {
 
-  var now = Date.now();
+    const input = document.getElementById("replayInput");
+    const code = input.value.trim();
 
-  database.ref("deviceLimits/" + deviceId).once("value")
-    .then(function(snapshot) {
+    if (!code) {
+      alert("리플레이 코드를 입력하세요.");
+      return;
+    }
 
-      var data = snapshot.val();
+    const deviceId = getDeviceId();
+    const deviceRef = doc(db, "deviceLimits", deviceId);
+    const snap = await getDoc(deviceRef);
 
-      if (data && data.lastSubmit && (now - data.lastSubmit < 3 * 60 * 60 * 1000)) {
-        alert("3시간 동안 다시 제출할 수 없습니다.");
+    const now = Date.now();
+
+    if (snap.exists()) {
+      const lastSubmit = snap.data().lastSubmit;
+
+      if (now - lastSubmit < THREE_HOURS) {
+        const remain = Math.ceil(
+          (THREE_HOURS - (now - lastSubmit)) / 60000
+        );
+        alert(`⚠️ 3시간 제한 중입니다. ${remain}분 후 재시도`);
         return;
       }
+    }
 
-      // 리플레이 저장
-      database.ref("replays").push({
-        code: replayCode,
-        deviceId: deviceId,
-        submittedAt: now
-      });
-
-      // 제한 시간 저장
-      database.ref("deviceLimits/" + deviceId).set({
-        lastSubmit: now
-      });
-
-      alert("제출 완료!");
+    // 리플레이 저장
+    await addDoc(collection(db, "replays"), {
+      replayCode: code,
+      deviceId: deviceId,
+      submittedAt: serverTimestamp()
     });
-});
 
+    // 제한 시간 갱신
+    await setDoc(deviceRef, {
+      lastSubmit: now
+    });
 
-
-
-
-
-
-
-
+    alert("✅ 리플레이 제출 완료!");
+    input.value = "";
+  });
+}
 
