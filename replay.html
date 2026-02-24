@@ -55,6 +55,53 @@
   <div id="resultMsg" style="margin-top:20px;"></div>
 </div>
 <script>
+
+/* ===============================
+   로그인 상태 감지
+================================ */
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+
+  const loginMenu = document.getElementById("loginMenu");
+  const userMenu = document.getElementById("userMenu");
+  const userName = document.getElementById("userName");
+
+  if (user) {
+    loginMenu.style.display = "none";
+    userMenu.style.display = "inline";
+    userName.textContent = `[${user.displayName || user.email}]`;
+  } else {
+    loginMenu.style.display = "inline";
+    userMenu.style.display = "none";
+  }
+
+  loadPosts();
+});
+
+/* ===============================
+   로그아웃
+================================ */
+// 로그아웃
+document.addEventListener("click", e => {
+  if (e.target.id === "logoutBtn") {
+    e.preventDefault();
+
+    // 로그아웃 확인
+    const confirmLogout = confirm("로그아웃 하시겠습니까?");
+    if (confirmLogout) {
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      }).catch((error) => {
+        console.error("로그아웃 실패:", error);
+        alert("로그아웃 중 오류가 발생했습니다.");
+      });
+    }
+  }
+});
+
+
+  
 document.addEventListener("DOMContentLoaded", function () {
 
   var resultMsg = document.getElementById("resultMsg");
