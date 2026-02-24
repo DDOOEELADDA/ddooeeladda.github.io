@@ -85,12 +85,22 @@ firebase.auth().onAuthStateChanged(user => {
 /* ===============================
    로그아웃
 ================================ */
+// 로그아웃
 document.addEventListener("click", e => {
   if (e.target.id === "logoutBtn") {
     e.preventDefault();
-    firebase.auth().signOut().then(() => {
-      location.reload();
-    });
+
+    // 로그아웃 확인
+    const confirmLogout = confirm("로그아웃 하시겠습니까?");
+    if (confirmLogout) {
+      auth.signOut().then(() => {
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      }).catch((error) => {
+        console.error("로그아웃 실패:", error);
+        alert("로그아웃 중 오류가 발생했습니다.");
+      });
+    }
   }
 });
 
@@ -172,5 +182,6 @@ async function loadPosts() {
 
 </body>
 </html>
+
 
 
